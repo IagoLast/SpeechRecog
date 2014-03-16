@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/SpeechRecog.iml" filepath="$PROJECT_DIR$/SpeechRecog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SpeechRecog/SpeechRecog-SpeechRecog.iml" filepath="$PROJECT_DIR$/SpeechRecog/SpeechRecog-SpeechRecog.iml" />
+    </modules>
+  </component>
+</project>
+
