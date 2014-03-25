@@ -93,6 +93,21 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
     }
 
 
+    /**
+     * Change current voicetivity.
+     *
+     * @param voicetivity Voicetivity to receive the incoming input.
+     * @return Voicetivity listening before this action.
+     */
+    public Object setCurrentVoicetivity(Object voicetivity){
+        Object lastVoicetivity = currentVoicetivity;
+
+        currentVoicetivity = voicetivity;
+
+        return lastVoicetivity;
+    }
+
+    
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
