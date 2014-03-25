@@ -12,20 +12,63 @@ import es.udc.iagolast.speechrecog.speechrecog.speechListener.StupidCallback;
 
 public class SpeechRecognitionService extends Service implements SpeechCallback {
 
-    private Object currentVoicetivity; /// TODO: Replace Object by the Voicetivity class
-    private SpeechRecognizer speechRecognizer;
+    private static Object currentVoicetivity; /// TODO: Replace Object by the Voicetivity class
+    private static SpeechRecognizer speechRecognizer;
+    private static Intent serviceIntent;
+    private static boolean listening;
+
 
     public SpeechRecognitionService() {
         currentVoicetivity = null;
+        listening = false;
     }
+
+
+    /**
+     * Start/Stop listening.
+     * This is used internally to synchronize the listening flag while providing a clean interface.
+     *
+     * @param listen Listen the user.
+     */
+    private static synchronized void changeListening(boolean listen){
+        if (listening == listen){
+            return; // Nothing changes
+        }
+
+        listening = listen;
+        if (listen){
+            speechRecognizer.startListening(serviceIntent);
+        }
+        else{
+            speechRecognizer.stopListening();
+        }
+    }
+
+
+    /**
+     * Listen for user input.
+     */
+    public static void startListening(){
+        changeListening(true);
+    }
+
+
+    /**
+     * Stop listening for user input.
+     */
+    public static void stopListening(){
+        changeListening(false);
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        serviceIntent = intent;
         createSpeechRecognizer();
-        speechRecognizer.startListening(intent);
 
         return START_STICKY;
     }
+
 
     /**
      *  Creates a speech recognizer with a callback to processSpeech.
