@@ -22,6 +22,7 @@ public class MainActivity extends Activity implements OnInitListener {
     private Button listenButton;
     private SpeechRecognizer speechRecognizer;
     private TextToSpeech textToSpeech;
+    private Intent speechService;
 
     /**
      * Find each ui element and and assigns it to his local variable.
@@ -58,6 +59,9 @@ public class MainActivity extends Activity implements OnInitListener {
         setListeners();
         createSpeechRecognizer();
         textToSpeech = new TextToSpeech(this, this);
+
+        speechService = new Intent(this, SpeechRecognitionService.class);
+        startService(speechService);
     }
 
     @Override
