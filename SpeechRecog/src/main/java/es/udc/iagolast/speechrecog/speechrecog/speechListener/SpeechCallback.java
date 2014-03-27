@@ -10,5 +10,6 @@ public interface SpeechCallback {
      */
     public void processSpeech(String speech);
 
+    public void endOfSpeech();
 
 }

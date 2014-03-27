@@ -3,7 +3,6 @@ package es.udc.iagolast.speechrecog.speechrecog;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -13,14 +12,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
-import es.udc.iagolast.speechrecog.speechrecog.speechListener.StupidCallback;
 
 public class MainActivity extends Activity implements OnInitListener {
 
     private TextView textView;
     private Button recordButton;
     private Button listenButton;
-    private SpeechRecognizer speechRecognizer;
     private TextToSpeech textToSpeech;
     private Intent speechService;
 
@@ -46,9 +43,10 @@ public class MainActivity extends Activity implements OnInitListener {
      *  the speech in the textView.
      */
     private void createSpeechRecognizer() {
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        StupidCallback stupidCallback = new StupidCallback(textView);
-        speechRecognizer.setRecognitionListener(new Listener(stupidCallback, this));
+        speechService = new Intent(this, SpeechRecognitionService.class);
+        startService(speechService);
+
+        textToSpeech = new TextToSpeech(this, this);
     }
 
     @Override
@@ -58,10 +56,6 @@ public class MainActivity extends Activity implements OnInitListener {
         loadUI();
         setListeners();
         createSpeechRecognizer();
-        textToSpeech = new TextToSpeech(this, this);
-
-        speechService = new Intent(this, SpeechRecognitionService.class);
-        startService(speechService);
     }
 
     @Override
@@ -75,14 +69,6 @@ public class MainActivity extends Activity implements OnInitListener {
      */
     OnClickListener onRecordClick = new OnClickListener() {
         public void onClick(View v) {
-            SpeechRecognitionService.startListening();
-            /*
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            speechRecognizer.startListening(intent);
-            */
         }
     };
 

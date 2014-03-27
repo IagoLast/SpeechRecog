@@ -8,7 +8,6 @@ import android.util.Log;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.SpeechCallback;
-import es.udc.iagolast.speechrecog.speechrecog.speechListener.StupidCallback;
 
 public class SpeechRecognitionService extends Service implements SpeechCallback {
 
@@ -16,7 +15,7 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
     private static SpeechRecognizer speechRecognizer;
     private static Intent serviceIntent;
     private static boolean listening;
-
+    private static final int TIMEOUT = 500;
 
     public SpeechRecognitionService() {
         currentVoicetivity = null;
@@ -36,6 +35,7 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
         }
 
         listening = listen;
+        Log.d("SpeechRecognitionService", speechRecognizer + "");
         if (listen){
             speechRecognizer.startListening(serviceIntent);
         }
@@ -65,6 +65,7 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
     public int onStartCommand(Intent intent, int flags, int startId){
         serviceIntent = intent;
         createSpeechRecognizer();
+        startListening();
 
         return START_STICKY;
     }
@@ -107,7 +108,20 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
         return lastVoicetivity;
     }
 
-    
+    public void endOfSpeech(){
+        Log.d("SpeechRecognitionService", "End of speech");
+
+
+        try {
+            Thread.sleep(TIMEOUT);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechRecognizer.startListening(serviceIntent);
+        Log.d("SpeechRecognitionService", "--------------");
+    }
+
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
