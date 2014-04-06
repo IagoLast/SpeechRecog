@@ -1,8 +1,12 @@
 package es.udc.iagolast.speechrecog.speechrecog;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -10,8 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-
-import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
 
 public class MainActivity extends Activity implements OnInitListener {
 
@@ -19,7 +22,19 @@ public class MainActivity extends Activity implements OnInitListener {
     private Button recordButton;
     private Button listenButton;
     private TextToSpeech textToSpeech;
-    private Intent speechService;
+    private SpeechRecognitionService srService;
+
+    private ServiceConnection mConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder bind) {
+            SimpleBinder sBinder = (SimpleBinder) bind;
+            srService = sBinder.getService();
+            srService.startListening();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) { }
+    };
+
 
     /**
      * Find each ui element and and assigns it to his local variable.
@@ -43,9 +58,8 @@ public class MainActivity extends Activity implements OnInitListener {
      *  the speech in the textView.
      */
     private void createSpeechRecognizer() {
-        speechService = new Intent(this, SpeechRecognitionService.class);
-        startService(speechService);
-
+        bindService(SpeechRecognitionService.getServiceIntent(this),
+                    mConn, Context.BIND_AUTO_CREATE);
         textToSpeech = new TextToSpeech(this, this);
     }
 
