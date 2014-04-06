@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -43,11 +44,10 @@ public class Listener implements RecognitionListener {
 
 
     public void onBeginningOfSpeech() {
-
+        Log.d("SpeechRecognitionService", "onBeggining");
     }
 
     public void onRmsChanged(float rmsdB) {
-
     }
 
     public void onBufferReceived(byte[] buffer) {
@@ -58,6 +58,7 @@ public class Listener implements RecognitionListener {
      * Dismiss notification when speech ends.
      */
     public void onEndOfSpeech() {
+        Log.d("SpeechRecognitionService", "onEndOfSpeech");
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
@@ -66,7 +67,13 @@ public class Listener implements RecognitionListener {
      * @param error
      */
     public void onError(int error) {
+        Log.d("SpeechRecognitionService", "Error " + error);
         notificationManager.cancel(NOTIFICATION_ID);
+
+        switch(error){
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                speechCallback.endOfSpeech();
+        }
     }
 
     /**
@@ -74,17 +81,19 @@ public class Listener implements RecognitionListener {
      * @param results
      */
     public void onResults(Bundle results) {
+        Log.d("SpeechRecognitionService", "onResults");
         ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String speech = data.get(0);
         speechCallback.processSpeech(speech);
+        speechCallback.endOfSpeech();
     }
 
     public void onPartialResults(Bundle partialResults) {
-
+        Log.d("SpeechRecognitionService", "onPartialResults");
     }
 
     public void onEvent(int eventType, Bundle params) {
-
+        Log.d("SpeechRecognitionService", "onEvent " + eventType);
     }
 }
 
