@@ -1,38 +1,30 @@
 package es.udc.iagolast.speechrecog.speechrecog;
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.widget.Toast;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
-import es.udc.iagolast.speechrecog.speechrecog.speechListener.SpeechCallback;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 
-public class SpeechRecognitionService extends Service implements SpeechCallback {
-
-    private final IBinder sBinder = (IBinder) new SimpleBinder();
-    class SimpleBinder extends Binder {
-        SpeechRecognitionService getService(){
-            return SpeechRecognitionService.this;
-        }
-    }
-
-
+public class SpeechRecognitionService extends Service {
     private final int TIMEOUT = 500;
-    private Object currentVoicetivity; /// TODO: Replace Object by the Voicetivity class
+    private Voicetivity currentVoicetivity;
     private SpeechRecognizer speechRecognizer = null;
     private boolean listening = false;
-
     private static Intent serviceIntent = null;
-    public static synchronized Intent getServiceIntent(Context c){
-        if (serviceIntent == null){
-            serviceIntent = new Intent(c, SpeechRecognitionService.class);
-            c.startService(serviceIntent);
+    private final IBinder sBinder = (IBinder) new SimpleBinder();
+
+
+    public static synchronized Intent getServiceIntent(Context context) {
+        if (serviceIntent == null) {
+            serviceIntent = new Intent(context, SpeechRecognitionService.class);
+            context.startService(serviceIntent);
         }
         return serviceIntent;
     }
@@ -44,17 +36,15 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
      *
      * @param listen Listen the user.
      */
-    private synchronized void changeListening(boolean listen){
-        if (listening == listen){
+    private synchronized void changeListening(boolean listen) {
+        if (listening == listen) {
             return; // Nothing changes
         }
-
         listening = listen;
         Log.d("SpeechRecognitionService", speechRecognizer + "");
-        if (listen){
+        if (listen) {
             speechRecognizer.startListening(serviceIntent);
-        }
-        else{
+        } else {
             speechRecognizer.stopListening();
         }
     }
@@ -63,7 +53,7 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
     /**
      * Listen for user input.
      */
-    public void startListening(){
+    public void startListening() {
         changeListening(true);
     }
 
@@ -71,27 +61,44 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
     /**
      * Stop listening for user input.
      */
-    public void stopListening(){
+    public void stopListening() {
         changeListening(false);
     }
 
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    public int onStartCommand(Intent intent, int flags, int startId) {
         serviceIntent = intent;
         createSpeechRecognizer();
         startListening();
-
         return START_STICKY;
     }
 
 
     /**
-     *  Creates a speech recognizer with a callback to processSpeech.
+     * Creates a speech recognizer with a callback to processSpeech.
      */
     private void createSpeechRecognizer() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speechRecognizer.setRecognitionListener(new Listener(this, getApplicationContext()));
+    }
+
+
+    /**
+     * Change current voicetivity.
+     *
+     * @param voicetivity Voicetivity to receive the incoming input.
+     * @return Voicetivity listening before this action.
+     */
+    public Voicetivity setCurrentVoicetivity(Voicetivity voicetivity) {
+        Voicetivity lastVoicetivity = currentVoicetivity;
+        currentVoicetivity = voicetivity;
+        return lastVoicetivity;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return sBinder;
     }
 
 
@@ -101,46 +108,43 @@ public class SpeechRecognitionService extends Service implements SpeechCallback 
      * @param speech the words that the user has spoken processed.
      * @TODO Uncomment process() call to current voicetivity when the interface is defined
      */
-    @Override
-    public void processSpeech(String speech){
+    public void processSpeech(String speech) {
         Log.d("SpeechRecognitionService", "Processing: " + speech);
-        if (currentVoicetivity != null){
-            //currentVoicetivity.process(speech);
+        if (currentVoicetivity != null) {
+            currentVoicetivity.processSpeech(speech);
+        } else {
+            Log.d("SpeechRecognitionService", "Pass");
+            Toast.makeText(getApplicationContext(), "No VT set yet.", Toast.LENGTH_SHORT).show();
         }
+        waitAndRun();
     }
-
 
     /**
-     * Change current voicetivity.
-     *
-     * @param voicetivity Voicetivity to receive the incoming input.
-     * @return Voicetivity listening before this action.
-     * @TODO Replace Object with Voicetivity
+     * Called by Listener when There is no matches.
+     * Do a little sleep and start listening again.
      */
-    public Object setCurrentVoicetivity(Object voicetivity){
-        Object lastVoicetivity = currentVoicetivity;
-        currentVoicetivity = voicetivity;
-
-        return lastVoicetivity;
+    public void onNomatchesFound() {
+        Log.d("SpeechRecognitionService", "No Matches Found");
+        waitAndRun();
     }
 
-
-    public void endOfSpeech(){
-        Log.d("SpeechRecognitionService", "End of speech");
-
-
+    /**
+     * Performs a little thread sleep, this is the way how we can listen
+     * several consecutive times.
+     */
+    public void waitAndRun() {
         try {
             Thread.sleep(TIMEOUT);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         speechRecognizer.startListening(serviceIntent);
-        Log.d("SpeechRecognitionService", "--------------");
     }
 
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return sBinder;
+    class SimpleBinder extends Binder {
+        SpeechRecognitionService getService() {
+            return SpeechRecognitionService.this;
+        }
     }
+
 }

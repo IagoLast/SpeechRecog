@@ -10,17 +10,17 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/Record"
+            android:text="Modo Loro"
             android:id="@+id/button"
             android:layout_gravity="center_horizontal"
             android:layout_weight="1" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/Listen"
+            android:text="Modo Escritura"
             android:id="@+id/button2"
             android:layout_weight="1" />
     </LinearLayout>
