@@ -16,6 +16,7 @@ import android.widget.TextView;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWritter;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.sampleVt.VtSample;
 
 public class MainActivity extends Activity implements OnInitListener {
 
@@ -92,6 +93,7 @@ public class MainActivity extends Activity implements OnInitListener {
         public void onServiceConnected(ComponentName arg0, IBinder bind) {
             SimpleBinder sBinder = (SimpleBinder) bind;
             speechRecognitionService = sBinder.getService();
+            speechRecognitionService.setCurrentVoicetivity(new VtSample(textToSpeech));
             speechRecognitionService.startListening();
         }
 
