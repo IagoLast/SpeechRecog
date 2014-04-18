@@ -3,7 +3,7 @@
     package="es.udc.iagolast.speechrecog.speechrecog">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +23,7 @@
         <service
             android:name=".SpeechRecognitionService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
     </application>
 
 </manifest>
