@@ -1,16 +1,12 @@
 package es.udc.iagolast.speechrecog.speechrecog.speechListener;
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 
 /**
@@ -24,53 +20,10 @@ import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
  * Si hay un error avisa al servicio
  */
 public class Listener implements RecognitionListener {
-    private final int NOTIFICATION_ID = 02356;
     private SpeechRecognitionService speechRecognitionService;
-    private Context context;
-    private NotificationManager notificationManager;
 
-    public Listener(SpeechRecognitionService callback, Context context) {
+    public Listener(SpeechRecognitionService callback) {
         this.speechRecognitionService = callback;
-        this.context = context;
-        // Gets an instance of the NotificationManager service
-        notificationManager =
-                (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-    }
-
-    /**
-     * When starting to listen, add a notification.
-     */
-    public void onReadyForSpeech(Bundle params) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.abc_ic_voice_search)
-                        .setContentTitle("Escuchando Ordenes ")
-                        .setContentText("");
-        // Builds the notification and issues it.
-        notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-    }
-
-    /**
-     * Dismiss notification when speech ends.
-     */
-    public void onEndOfSpeech() {
-        Log.d("SpeechRecognitionService", "onEndOfSpeech");
-        notificationManager.cancel(NOTIFICATION_ID);
-    }
-
-    /**
-     * When error happens, dimiss Listening notification.
-     * If error is that there is no matches notify srcgService.
-     *
-     * @param error
-     */
-    public void onError(int error) {
-        Log.d("SpeechRecognitionService", "Error " + error);
-        notificationManager.cancel(NOTIFICATION_ID);
-        switch (error) {
-            case SpeechRecognizer.ERROR_NO_MATCH:
-                speechRecognitionService.onNomatchesFound();
-        }
     }
 
     /**
@@ -83,6 +36,25 @@ public class Listener implements RecognitionListener {
         ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String speech = data.get(0);
         speechRecognitionService.processSpeech(speech);
+    }
+
+    /**
+     * If error happens just call Service.onError()
+     *
+     * @param error
+     */
+    public void onError(int error) {
+        Log.d("SpeechRecognitionService", "Error " + error);
+        speechRecognitionService.onError();
+    }
+
+
+    public void onReadyForSpeech(Bundle params) {
+        Log.d("SpeechRecognitionService", "onReadyForSpeech");
+    }
+
+    public void onEndOfSpeech() {
+        Log.d("SpeechRecognitionService", "onEndOfSpeech");
     }
 
     public void onBeginningOfSpeech() {

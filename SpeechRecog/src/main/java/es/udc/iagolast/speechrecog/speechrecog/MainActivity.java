@@ -14,9 +14,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt.VtNaive;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWritter;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.sampleVt.VtSample;
 
 public class MainActivity extends Activity implements OnInitListener {
 
@@ -35,6 +35,7 @@ public class MainActivity extends Activity implements OnInitListener {
         setListeners();
         bindSpeechRecognizer();
         textToSpeech = new TextToSpeech(this, this);
+        startService(SpeechRecognitionService.getServiceIntent(this));
     }
 
     @Override
@@ -93,7 +94,7 @@ public class MainActivity extends Activity implements OnInitListener {
         public void onServiceConnected(ComponentName arg0, IBinder bind) {
             SimpleBinder sBinder = (SimpleBinder) bind;
             speechRecognitionService = sBinder.getService();
-            speechRecognitionService.setCurrentVoicetivity(new VtSample(textToSpeech));
+            speechRecognitionService.setCurrentVoicetivity(new VtNaive(getApplicationContext()));
             speechRecognitionService.startListening();
         }
 

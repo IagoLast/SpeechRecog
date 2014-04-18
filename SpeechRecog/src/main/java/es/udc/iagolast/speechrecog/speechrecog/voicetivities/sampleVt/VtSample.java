@@ -1,5 +1,8 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.sampleVt;
 
+import android.content.Context;
+import android.content.Intent;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.State;
@@ -10,10 +13,12 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
  */
 public class VtSample implements Voicetivity {
     State state;
-    private TextToSpeech textToSpeech;
+    protected TextToSpeech textToSpeech;
+    protected Context service;
 
-    public VtSample(TextToSpeech textToSpeech) {
+    public VtSample(TextToSpeech textToSpeech, Context service) {
         this.textToSpeech = textToSpeech;
+        this.service = service;
         state = new StateOne(this);
     }
 
@@ -37,11 +42,14 @@ class StateOne implements State {
 
     @Override
     public void processSpeech(String speech) {
-        if (speech.equalsIgnoreCase("tiempo")) {
+        if (speech.equalsIgnoreCase("sacar foto")) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            voicetivity.service.startActivity(intent);
+        } else if (speech.equalsIgnoreCase("tiempo")) {
             voicetivity.speak("¿Que ciudad quieres saber?");
             voicetivity.state = new StateTwo(voicetivity);
-        }
-        if (speech.equalsIgnoreCase("futbol")) {
+        } else if (speech.equalsIgnoreCase("futbol")) {
             voicetivity.speak("¿De qué equipo eres?");
             voicetivity.state = new StateThree(voicetivity);
         } else {
@@ -63,8 +71,7 @@ class StateTwo implements State {
         if (speech.equalsIgnoreCase("vigo")) {
             voicetivity.speak("Hace frio en vigo.");
 
-        }
-        if (speech.equalsIgnoreCase("coruña") || speech.equalsIgnoreCase("a coruña")) {
+        } else if (speech.equalsIgnoreCase("coruña") || speech.equalsIgnoreCase("a coruña")) {
             voicetivity.speak("Llueve bastante en coruña.");
 
         } else {
@@ -87,8 +94,7 @@ class StateThree implements State {
     public void processSpeech(String speech) {
         if (speech.equalsIgnoreCase("barça") || speech.equalsIgnoreCase("barsa")) {
             voicetivity.speak("Me caes bien, yo tambien soy del barça.");
-        }
-        if (speech.equalsIgnoreCase("madrid") || speech.equalsIgnoreCase("real madrid")) {
+        } else if (speech.equalsIgnoreCase("madrid") || speech.equalsIgnoreCase("real madrid")) {
             voicetivity.speak("Me parece que deberíamos hablar de otra cosa.");
         } else {
             voicetivity.speak("No tengo ni idea de que equipo es ese.");
