@@ -27,8 +27,8 @@ public class MailVoicetivity implements Voicetivity {
     @Override
     public void processSpeech(String speech) {
 
-        if (!speech.equalsIgnoreCase(String.valueOf(R.string.Speech_Keyword_Salir))) {
+        if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit))) {
             state.processSpeech(speech);
-        }
+        } else tts.speak("Has dado la orden de salir.", TextToSpeech.QUEUE_FLUSH, null);
     }
 }
