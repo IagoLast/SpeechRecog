@@ -31,7 +31,7 @@ public class MailVtStateOne implements MailVoicetivityState {
             voicetivity.state = new MailVtInitialState(voicetivity);
 
         } else
-            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand));
+            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
 
 
     }

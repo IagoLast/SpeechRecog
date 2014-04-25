@@ -26,18 +26,18 @@ public class MailVtInitialState implements MailVoicetivityState {
         if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Check_Mail))) {
 
             if (voicetivity.mailClient.hasUnreadMail()) {
-                voicetivity.speak(res.getString(R.string.Speech_Keyword_Unread_Mail));
+                voicetivity.speak(res.getString(R.string.Speech_Keyword_Unread_Mail), true);
                 voicetivity.state = new MailVtStateOne(voicetivity);
 
             } else
-                voicetivity.speak(res.getString(R.string.Speech_Response_Non_Unread_Mail));
+                voicetivity.speak(res.getString(R.string.Speech_Response_Non_Unread_Mail), true);
 
         } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Write_Mail))) {
             //TODO
-            voicetivity.speak("Función no implementada aún.");
+            voicetivity.speak("Función no implementada aún.", true);
 
         } else
-            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand));
+            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
 
 
     }
