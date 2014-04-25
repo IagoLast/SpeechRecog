@@ -8,21 +8,24 @@
 
 
     <string name="Speech_Keyword_Exit">salir</string>
-    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo</string>
+    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de mail</string>
     <string name="Speech_Keyword_No">no</string>
     <string name="Speech_Keyword_Yes">si</string>
-    <string name="Speech_Keyword_Check_Mail">comprobar correo</string>
+    <string name="Speech_Keyword_Check_Mail">comprobar mail</string>
     <string name="Speech_Keyword_Write_Mail">escribir mail</string>
-    <string name="Speech_Keyword_Unread_Mail">Hay e-mails sin leer, ¿Quieres saber de quién?</string>
+    <string name="Speech_Keyword_Stop_Writing_Mail">finalizar mail</string>
 
 
-    <string name="Speech_Response_Leave_Mail_Voicetivity">Saliendo del gestor de correo.</string>
+    <string name="Speech_Response_Leave_Mail_Voicetivity">Saliendo del gestor de mails.</string>
+    <string name="Speech_Response_Unread_Mail">Hay e-mails sin leer, ¿Quieres saber de quién?</string>
     <string name="Speech_Response_Dont_Understand">No he entendido tu orden.</string>
     <string name="Speech_Response_Non_Unread_Mail">No hay e-mails sin leer.</string>
     <string name="Speech_Response_Mail_From">Tienes un e-mail de.</string>
     <string name="Speech_Response_Mail_From_End">¿Quieres que lo lea?</string>
     <string name="Speech_Response_No_More_Unread_Mail">No quedan más e-mails sin leer.</string>
-
+    <string name="Speech_Response_Ask_To_Reply">¿Quieres responder?</string>
+    <string name="Speech_Response_Mail_Sent_OK">Mail enviado correctamente</string>
+    <string name="Speech_Response_Mail_Sent_Fail">Ha habido un error al enviar el mail</string>
 
 
 </resources>

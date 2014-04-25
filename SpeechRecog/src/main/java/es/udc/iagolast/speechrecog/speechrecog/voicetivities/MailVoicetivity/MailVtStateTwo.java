@@ -47,7 +47,7 @@ public class MailVtStateTwo implements MailVoicetivityState {
         if (voicetivity.mailClient.hasUnreadMail()) {
             mail = voicetivity.mailClient.getNextMail();
 
-            voicetivity.speak(res.getString(R.string.Speech_Response_Mail_From) + mail.getFrom() + res.getString(R.string.Speech_Response_Mail_From_End), true);
+            voicetivity.speak(res.getString(R.string.Speech_Response_Mail_From) + mail.getFrom() + res.getString(R.string.Speech_Response_Mail_From_End), false);
 
         } else mail = null;
 
