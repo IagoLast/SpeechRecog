@@ -1,7 +1,5 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +29,6 @@ public class VoicetivityManager {
     }
 
     public static VoicetivityManager getInstance(SpeechRecognitionService service) {
-        if (service == null) {
-            Log.e("ERROR", "null service");
-        }
         if (INSTANCE == null) {
             INSTANCE = new VoicetivityManager(service);
         }

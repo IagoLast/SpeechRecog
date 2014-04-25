@@ -20,8 +20,8 @@ public class VtMail implements Voicetivity {
         mailClient = new MailClientMock();
     }
 
-    protected void speak(String speech) {
-        service.speak(speech);
+    protected void speak(String speech, Boolean flush) {
+        service.speak(speech, flush);
     }
 
     @Override
