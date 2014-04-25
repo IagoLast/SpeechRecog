@@ -19,8 +19,8 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class MainActivity extends Activity implements OnInitListener {
-    private SpeechRecognitionService speechRecognitionService;
 
+    private SpeechRecognitionService speechRecognitionService;
     private ListView listView;
     private List<Voicetivity> voicetivityList;
     private VtAdapter vtAdapter;

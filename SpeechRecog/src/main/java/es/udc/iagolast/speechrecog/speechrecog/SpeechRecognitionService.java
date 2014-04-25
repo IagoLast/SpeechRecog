@@ -169,6 +169,14 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
     }
 
+    public void speak(String speech, Boolean flush) {
+        if (flush) {
+            speak(speech);
+        } else {
+            textToSpeech.speak(speech, TextToSpeech.QUEUE_ADD, null);
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return sBinder;
