@@ -28,7 +28,7 @@ public class VtNaive implements Voicetivity {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             service.startActivity(intent);
-        } else if (speech.equalsIgnoreCase("grabar video")) {
+        } else if (speech.equalsIgnoreCase("grabar vídeo")) {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             service.startActivity(intent);
