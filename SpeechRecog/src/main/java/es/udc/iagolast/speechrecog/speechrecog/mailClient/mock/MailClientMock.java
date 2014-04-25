@@ -7,9 +7,6 @@ import java.util.Stack;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
 
-/**
- * Created by dani on 24/04/14.
- */
 
 public class MailClientMock implements MailClient {
 
@@ -20,7 +17,6 @@ public class MailClientMock implements MailClient {
     private final String FROM_BASE_STRING = "Remmitent.test";
     private final String FROM_END_STRING = "@Whatever.com";
     private final String BODY_BASE_STRING = "BODY BODY BODY TEST";
-
 
     public MailClientMock() {
 
@@ -43,15 +39,12 @@ public class MailClientMock implements MailClient {
 
     @Override
     public boolean hasUnreadMail() {
-
         return !unreadMailStack.isEmpty();
     }
-
 
     @Override
     public Stack<Mail> getUnreadMails() {
         return unreadMailStack;
-
     }
 
     @Override
@@ -63,6 +56,5 @@ public class MailClientMock implements MailClient {
     public Mail getNextMail() {
         readMails.add(unreadMailStack.peek());
         return unreadMailStack.pop();
-
     }
 }
