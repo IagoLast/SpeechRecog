@@ -2,18 +2,17 @@ package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
 
 
 import android.content.res.Resources;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import es.udc.iagolast.speechrecog.speechrecog.R;
 
 public class MailVtStateOne implements MailVoicetivityState {
 
-    private MailVoicetivity voicetivity;
+    private VtMail voicetivity;
     private Resources res;
 
 
-    public MailVtStateOne(MailVoicetivity voicetivity) {
+    public MailVtStateOne(VtMail voicetivity) {
         this.voicetivity = voicetivity;
         res = voicetivity.service.getResources();
     }
@@ -32,7 +31,7 @@ public class MailVtStateOne implements MailVoicetivityState {
             voicetivity.state = new MailVtInitialState(voicetivity);
 
         } else
-            voicetivity.tts.speak(res.getString(R.string.Speech_Response_Dont_Understand), TextToSpeech.QUEUE_FLUSH, null);
+            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand));
 
 
     }

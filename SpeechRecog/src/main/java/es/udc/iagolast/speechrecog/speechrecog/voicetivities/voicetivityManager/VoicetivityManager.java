@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt.VtNaive;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity.VtMail;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
 
@@ -24,8 +25,9 @@ public class VoicetivityManager {
     private VoicetivityManager(SpeechRecognitionService service) {
         this.service = service;
         voicetivityMap = new HashMap<String, Voicetivity>();
-        voicetivityMap.put("Main", new VtNaive(this.service));
+        voicetivityMap.put("Main", new VtMain(this.service));
         voicetivityMap.put("Parrot", new VtParrot(this.service));
+        voicetivityMap.put("Mail", new VtMail(this.service));
     }
 
     public static VoicetivityManager getInstance(SpeechRecognitionService service) {

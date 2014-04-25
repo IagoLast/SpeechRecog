@@ -1,49 +1,51 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
 
 
-import android.content.Context;
-import android.speech.tts.TextToSpeech;
-
 import es.udc.iagolast.speechrecog.speechrecog.R;
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.mock.MailClientMock;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
-public class MailVoicetivity implements Voicetivity {
+public class VtMail implements Voicetivity {
 
-    protected Context service;
+    protected SpeechRecognitionService service;
     protected MailVoicetivityState state;
     protected MailClient mailClient;
-    protected TextToSpeech tts;
 
-    public MailVoicetivity(Context service, TextToSpeech tts) {
-
+    public VtMail(SpeechRecognitionService service) {
         this.service = service;
-        this.tts = tts;
         state = new MailVtInitialState(this);
         mailClient = new MailClientMock();
     }
 
+    protected void speak(String speech) {
+        service.speak(speech);
+    }
+
     @Override
     public void processSpeech(String speech) {
-
         if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit))) {
             state.processSpeech(speech);
-        } else tts.speak("Has dado la orden de salir.", TextToSpeech.QUEUE_FLUSH, null);
+        } else {
+            service.speak("saliendo.");
+            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+        }
     }
 
     @Override
     public String getIconName() {
-        return null;
+        return "ic_mail";
     }
 
     @Override
     public String getName() {
-        return null;
+        return "Mail Client";
     }
 
     @Override
     public String getDesc() {
-        return null;
+        return "Lee tu correo solo por voz.";
     }
 }

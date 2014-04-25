@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -15,10 +15,10 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.
 /**
  * Created by iagolast on 18/04/14.
  */
-public class VtNaive implements Voicetivity {
+public class VtMain implements Voicetivity {
     protected SpeechRecognitionService service;
 
-    public VtNaive(SpeechRecognitionService service) {
+    public VtMain(SpeechRecognitionService service) {
         this.service = service;
     }
 
@@ -52,6 +52,8 @@ public class VtNaive implements Voicetivity {
 
         } else if (speech.matches("activar loro")) {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
+        } else if (speech.matches("correo")) {
+            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));
         }
     }
 
