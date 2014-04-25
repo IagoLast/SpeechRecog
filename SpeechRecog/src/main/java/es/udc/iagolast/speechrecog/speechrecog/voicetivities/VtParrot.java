@@ -1,6 +1,7 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities;
 
-import android.speech.tts.TextToSpeech;
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 /**
  * Created by iagolast on 11/04/14.
@@ -8,15 +9,20 @@ import android.speech.tts.TextToSpeech;
  * This is a Sample Voicetivity that only repeats what the user said.
  */
 public class VtParrot implements Voicetivity {
-    private TextToSpeech textToSpeech;
+    private SpeechRecognitionService service;
 
-    public VtParrot(TextToSpeech textToSpeech) {
-        this.textToSpeech = textToSpeech;
+    public VtParrot(SpeechRecognitionService service) {
+        this.service = service;
     }
 
     @Override
     public void processSpeech(String speech) {
-        textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
+        if (speech.equalsIgnoreCase("Salir")) {
+            service.speak("saliendo.");
+            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+        } else {
+            service.speak(speech);
+        }
     }
 
     @Override

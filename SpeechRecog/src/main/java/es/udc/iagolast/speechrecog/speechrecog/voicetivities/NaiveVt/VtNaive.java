@@ -1,7 +1,6 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt;
 
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.provider.AlarmClock;
 import android.provider.MediaStore;
@@ -9,16 +8,18 @@ import android.util.Log;
 
 import java.util.Calendar;
 
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 /**
  * Created by iagolast on 18/04/14.
  */
 public class VtNaive implements Voicetivity {
-    protected Context service;
+    protected SpeechRecognitionService service;
 
-    public VtNaive(Context context) {
-        this.service = context;
+    public VtNaive(SpeechRecognitionService service) {
+        this.service = service;
     }
 
     @Override
@@ -49,21 +50,23 @@ public class VtNaive implements Voicetivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             service.startActivity(intent);
 
+        } else if (speech.matches("activar loro")) {
+            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
         }
     }
 
     @Override
     public String getIconName() {
-        return "ic_text";
+        return "ic_launcher";
     }
 
     @Override
     public String getName() {
-        return "Naive vt";
+        return "Main";
     }
 
     @Override
     public String getDesc() {
-        return "Sample voicetivity which don´t do nothing";
+        return "The app´s core, includes basic commands.";
     }
 }

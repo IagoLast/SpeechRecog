@@ -1,5 +1,7 @@
 package es.udc.iagolast.speechrecog.speechrecog.speechListener;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
@@ -50,6 +52,9 @@ public class Listener implements RecognitionListener {
 
 
     public void onReadyForSpeech(Bundle params) {
+        // Un-mute volume.
+        AudioManager audioManager = (AudioManager) speechRecognitionService.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, speechRecognitionService.volume, 0);
         Log.d("SpeechRecognitionService", "onReadyForSpeech");
     }
 

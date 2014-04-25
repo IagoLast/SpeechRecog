@@ -6,24 +6,19 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
 import es.udc.iagolast.speechrecog.speechrecog.adapters.VtAdapter;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt.VtNaive;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.sampleVt.VtSample;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class MainActivity extends Activity implements OnInitListener {
-    private TextToSpeech textToSpeech;
     private SpeechRecognitionService speechRecognitionService;
 
     private ListView listView;
@@ -34,11 +29,10 @@ public class MainActivity extends Activity implements OnInitListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startService(SpeechRecognitionService.getServiceIntent(this));
+        bindSpeechRecognizer();
         loadUI();
         setListeners();
-        bindSpeechRecognizer();
-        textToSpeech = new TextToSpeech(this, this);
-        startService(SpeechRecognitionService.getServiceIntent(this));
     }
 
     @Override
@@ -50,13 +44,13 @@ public class MainActivity extends Activity implements OnInitListener {
      * Find each ui element and and assigns it to his local variable.
      */
     private void loadUI() {
-        voicetivityList = new ArrayList<Voicetivity>();
-        voicetivityList.add(new VtNaive(this));
-        voicetivityList.add(new VtParrot(textToSpeech));
-        voicetivityList.add(new VtSample(textToSpeech, speechRecognitionService));
-
         listView = (ListView) findViewById(R.id.listView);
+    }
 
+    /**
+     * Popuates de listView with the new Voicetivity List.
+     */
+    private void populateListView(List<Voicetivity> voicetivityList) {
         vtAdapter = new VtAdapter(this, voicetivityList);
         listView.setAdapter(vtAdapter);
     }
@@ -93,7 +87,9 @@ public class MainActivity extends Activity implements OnInitListener {
         public void onServiceConnected(ComponentName arg0, IBinder bind) {
             SimpleBinder sBinder = (SimpleBinder) bind;
             speechRecognitionService = sBinder.getService();
-            speechRecognitionService.setCurrentVoicetivity(new VtNaive(getApplicationContext()));
+            voicetivityList = VoicetivityManager.getInstance(speechRecognitionService).getVoicetivityList();
+            populateListView(voicetivityList);
+            speechRecognitionService.setCurrentVoicetivity(VoicetivityManager.getInstance(speechRecognitionService).getVoicetivity("Main"));
             speechRecognitionService.startListening();
         }
 

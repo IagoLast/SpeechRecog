@@ -22,8 +22,8 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     private boolean listening = false;
     private static Intent serviceIntent = null;
     private final IBinder sBinder = (IBinder) new SimpleBinder();
+    public int volume;
     private TextToSpeech textToSpeech;
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -34,11 +34,10 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     /**
-     * Inits TextToSpeech and
-     * creates a speech recognizer with a callback to processSpeech.
+     * Creates a speech recognizer with a callback to processSpeech.
      */
     private void initService() {
-        textToSpeech = new TextToSpeech(getApplicationContext(), this);
+        textToSpeech = new TextToSpeech(this, this);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speechRecognizer.setRecognitionListener(new Listener(this));
     }
@@ -48,17 +47,22 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      * When listening notification is shown.
      */
     public void startListening() {
-        // QUIT VOLUME TO HIDE "BEEP" WHILE LISTENING.
-        AudioManager amanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        amanager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-
         changeListening(true);
+        startForeground(1337, buildNofification());
+    }
+
+    /**
+     * Builds a new notification which is always visible while service is running.
+     *
+     * @return notification.
+     */
+    private Notification buildNofification() {
         Notification notification = new Notification();
         Intent intent = new Intent(this, SpeechRecognitionService.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notification.flags |= Notification.FLAG_NO_CLEAR;
-        startForeground(1337, notification);
+        return notification;
     }
 
     /**
@@ -75,9 +79,20 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         Log.d("SpeechRecognitionService", speechRecognizer + "");
         if (listen) {
             speechRecognizer.startListening(serviceIntent);
+            muteAudio();
         } else {
             speechRecognizer.stopListening();
         }
+    }
+
+    /**
+     * Mute volume to hide "BEEP" while listening.
+     */
+    private void muteAudio() {
+        //
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
     }
 
     public static synchronized Intent getServiceIntent(Context context) {
@@ -114,14 +129,13 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      * Send the words the user has spoken to the current Voicetivity.
      *
      * @param speech the words that the user has spoken processed.
-     * @TODO Uncomment process() call to current voicetivity when the interface is defined
      */
     public void processSpeech(String speech) {
         Log.d("SpeechRecognitionService", "Processing: " + speech);
         if (currentVoicetivity != null) {
             currentVoicetivity.processSpeech(speech);
         } else {
-            Log.d("SpeechRecognitionService", "Pass");
+            Log.e("SpeechRecognitionService", "No voicetivity detected");
             Toast.makeText(getApplicationContext(), "No VT set yet.", Toast.LENGTH_SHORT).show();
         }
         waitAndRun();
@@ -144,9 +158,16 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        while (textToSpeech.isSpeaking()) {
+            //Wait until stop speaking.
+        }
         speechRecognizer.startListening(serviceIntent);
+        muteAudio();
     }
 
+    public void speak(String speech) {
+        textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
