@@ -38,18 +38,22 @@ public class VtWeather implements Voicetivity {
         } else {
             HttpClient defaultHttpClient = new DefaultHttpClient();
             try {
+                // Enable Network on Main Thread
+                StrictMode.ThreadPolicy defaultPolicy = StrictMode.getThreadPolicy();
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                 StrictMode.setThreadPolicy(policy);
 
-
+                //Get current location.
                 LocationManager lm = (LocationManager) service.getSystemService(Context.LOCATION_SERVICE);
                 Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 double longitude = location.getLongitude();
                 double latitude = location.getLatitude();
 
+                //Build url and run http request.
                 String url = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&lang=sp&units=metric";
                 HttpResponse response = defaultHttpClient.execute(new HttpGet(url));
 
+                // Extract data from reponse.
                 JSONObject jsonObject = new JSONObject(EntityUtils.toString(response.getEntity()));
                 JSONArray weather = jsonObject.getJSONArray("weather");
                 JSONObject main = jsonObject.getJSONObject("main");
@@ -57,7 +61,9 @@ public class VtWeather implements Voicetivity {
                 temperature = Math.round(temperature);
                 jsonObject = weather.getJSONObject(0);
                 String description = jsonObject.getString("description");
+
                 service.speak(description + " con temperaturas de " + temperature + " grados.");
+                StrictMode.setThreadPolicy(defaultPolicy);
             } catch (Exception e) {
                 service.speak("No puedo saber que tiempo hace, saliendo.");
                 service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));

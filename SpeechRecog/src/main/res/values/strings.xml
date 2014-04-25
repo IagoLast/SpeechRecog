@@ -2,9 +2,7 @@
 <resources>
 
     <string name="app_name">Ziri</string>
-    <string name="action_settings">Settings</string>
-    <string name="Record">Record</string>
-    <string name="Listen">Listen</string>
+    <string name="stop_ziri">Stop ziri</string>
 
 
     <string name="Speech_Keyword_Exit">salir</string>
@@ -22,7 +20,6 @@
     <string name="Speech_Response_Mail_From">Tienes un e-mail de.</string>
     <string name="Speech_Response_Mail_From_End">¿Quieres que lo lea?</string>
     <string name="Speech_Response_No_More_Unread_Mail">No quedan más e-mails sin leer.</string>
-
 
 
 </resources>

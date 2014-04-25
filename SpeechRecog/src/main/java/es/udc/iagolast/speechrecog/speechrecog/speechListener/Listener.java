@@ -34,7 +34,7 @@ public class Listener implements RecognitionListener {
      * @param results
      */
     public void onResults(Bundle results) {
-        Log.d("SpeechRecognitionService", "onResults");
+        Log.d("Listener", "onResults");
         ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String speech = data.get(0);
         speechRecognitionService.processSpeech(speech);
@@ -46,32 +46,33 @@ public class Listener implements RecognitionListener {
      * @param error
      */
     public void onError(int error) {
-        Log.d("SpeechRecognitionService", "Error " + error);
+        Log.d("Listener", "Error " + error);
         speechRecognitionService.onError();
     }
 
 
     public void onReadyForSpeech(Bundle params) {
+        Log.d("Listener", "onReadyForSpeech");
         // Un-mute volume.
         AudioManager audioManager = (AudioManager) speechRecognitionService.getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, speechRecognitionService.volume, 0);
-        Log.d("SpeechRecognitionService", "onReadyForSpeech");
+
     }
 
     public void onEndOfSpeech() {
-        Log.d("SpeechRecognitionService", "onEndOfSpeech");
+        Log.d("Listener", "onEndOfSpeech");
     }
 
     public void onBeginningOfSpeech() {
-        Log.d("SpeechRecognitionService", "onBeggining");
+        Log.d("Listener", "onBeggining");
     }
 
     public void onPartialResults(Bundle partialResults) {
-        Log.d("SpeechRecognitionService", "onPartialResults");
+        Log.d("Listener", "onPartialResults");
     }
 
     public void onEvent(int eventType, Bundle params) {
-        Log.d("SpeechRecognitionService", "onEvent " + eventType);
+        Log.d("Listener", "onEvent " + eventType);
     }
 
     public void onRmsChanged(float rmsdB) {
