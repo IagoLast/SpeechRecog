@@ -26,4 +26,19 @@ public class MailVoicetivity implements Voicetivity {
 
 
     }
+
+    @Override
+    public String getIconName() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public String getDesc() {
+        return null;
+    }
 }

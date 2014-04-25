@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.speech.SpeechRecognizer;
@@ -47,6 +48,10 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      * When listening notification is shown.
      */
     public void startListening() {
+        // QUIT VOLUME TO HIDE "BEEP" WHILE LISTENING.
+        AudioManager amanager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        amanager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
         changeListening(true);
         Notification notification = new Notification();
         Intent intent = new Intent(this, SpeechRecognitionService.class);
