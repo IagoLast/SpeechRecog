@@ -4,11 +4,13 @@ public class Mail {
 
     private String subject;
     private String from;
+    private String to;
     private String body;
 
-    public Mail(String subject, String from, String body) {
+    public Mail(String subject, String from, String to, String body) {
         this.subject = subject;
         this.from = from;
+        this.to = to;
         this.body = body;
     }
 
@@ -26,6 +28,14 @@ public class Mail {
 
     public void setFrom(String from) {
         this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 
     public String getBody() {
