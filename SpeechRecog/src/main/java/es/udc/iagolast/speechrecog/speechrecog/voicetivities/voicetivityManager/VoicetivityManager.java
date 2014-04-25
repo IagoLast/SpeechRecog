@@ -10,6 +10,7 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity.VtM
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWeather.VtWeather;
 
 /**
  * Created by iagolast on 25/04/14.
@@ -26,6 +27,7 @@ public class VoicetivityManager {
         voicetivityMap.put("Main", new VtMain(this.service));
         voicetivityMap.put("Parrot", new VtParrot(this.service));
         voicetivityMap.put("Mail", new VtMail(this.service));
+        voicetivityMap.put("Weather", new VtWeather(this.service));
     }
 
     public static VoicetivityManager getInstance(SpeechRecognitionService service) {

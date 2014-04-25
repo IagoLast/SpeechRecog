@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -18,7 +17,7 @@ import es.udc.iagolast.speechrecog.speechrecog.adapters.VtAdapter;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
-public class MainActivity extends Activity implements OnInitListener {
+public class MainActivity extends Activity {
 
     private SpeechRecognitionService speechRecognitionService;
     private ListView listView;
@@ -36,9 +35,11 @@ public class MainActivity extends Activity implements OnInitListener {
     }
 
     @Override
-    public void onInit(int status) {
-
+    protected void onDestroy() {
+        unbindService(speechRecogniterConnection);
+        super.onDestroy();
     }
+
 
     /**
      * Find each ui element and and assigns it to his local variable.
@@ -89,12 +90,29 @@ public class MainActivity extends Activity implements OnInitListener {
             speechRecognitionService = sBinder.getService();
             voicetivityList = VoicetivityManager.getInstance(speechRecognitionService).getVoicetivityList();
             populateListView(voicetivityList);
-            speechRecognitionService.setCurrentVoicetivity(VoicetivityManager.getInstance(speechRecognitionService).getVoicetivity("Main"));
-            speechRecognitionService.startListening();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
         }
     };
+
+    /** Por alguna puta razon es imposible matar al service.
+     @Override public boolean onCreateOptionsMenu(Menu menu) {
+     MenuInflater inflater = getMenuInflater();
+     inflater.inflate(R.menu.main, menu);
+     return true;
+     }
+
+     @Override public boolean onOptionsItemSelected(MenuItem item) {
+     // Handle item selection
+     switch (item.getItemId()) {
+     case R.id.action_exit:
+     stopService(SpeechRecognitionService.getServiceIntent(this));
+     finish();
+     default:
+     return super.onOptionsItemSelected(item);
+     }
+     }
+     **/
 }

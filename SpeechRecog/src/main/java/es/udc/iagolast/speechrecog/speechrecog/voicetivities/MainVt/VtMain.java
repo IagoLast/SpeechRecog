@@ -54,6 +54,8 @@ public class VtMain implements Voicetivity {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
         } else if (speech.matches("correo")) {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));
+        } else if (speech.matches("tiempo")) {
+            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Weather"));
         }
     }
 

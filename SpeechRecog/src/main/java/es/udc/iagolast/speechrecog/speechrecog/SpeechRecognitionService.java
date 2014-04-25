@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
     private final int TIMEOUT = 500;
@@ -40,6 +41,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         textToSpeech = new TextToSpeech(this, this);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speechRecognizer.setRecognitionListener(new Listener(this));
+        setCurrentVoicetivity(VoicetivityManager.getInstance(this).getVoicetivity("Main"));
     }
 
     /**
