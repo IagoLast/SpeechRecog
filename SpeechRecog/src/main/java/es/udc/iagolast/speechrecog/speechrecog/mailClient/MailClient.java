@@ -13,5 +13,4 @@ public interface MailClient {
 
     public Mail getNextMail();
 
-
 }
