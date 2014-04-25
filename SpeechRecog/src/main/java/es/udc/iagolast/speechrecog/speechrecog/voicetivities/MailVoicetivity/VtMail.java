@@ -29,7 +29,7 @@ public class VtMail implements Voicetivity {
         if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit_Mail_Manager))) {
             state.processSpeech(speech);
         } else {
-            service.speak("saliendo.");
+            service.speak(service.getString(R.string.Speech_Response_Leave_Mail_Voicetivity));
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
         }
     }

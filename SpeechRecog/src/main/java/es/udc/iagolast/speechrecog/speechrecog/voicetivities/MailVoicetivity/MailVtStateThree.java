@@ -28,6 +28,7 @@ public class MailVtStateThree implements MailVoicetivityState {
 
     private void init() {
 
-        voicetivity.speak(mail.getBody());
+        voicetivity.speak(mail.getBody(), true);
+
     }
 }
