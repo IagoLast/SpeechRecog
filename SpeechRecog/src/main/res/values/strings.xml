@@ -8,6 +8,7 @@
 
 
     <string name="Speech_Keyword_Exit">salir</string>
+    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo</string>
     <string name="Speech_Keyword_No">no</string>
     <string name="Speech_Keyword_Yes">si</string>
     <string name="Speech_Keyword_Check_Mail">comprobar correo</string>

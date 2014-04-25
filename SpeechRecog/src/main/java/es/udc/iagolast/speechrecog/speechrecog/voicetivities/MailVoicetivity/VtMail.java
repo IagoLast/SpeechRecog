@@ -26,7 +26,7 @@ public class VtMail implements Voicetivity {
 
     @Override
     public void processSpeech(String speech) {
-        if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit))) {
+        if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit_Mail_Manager))) {
             state.processSpeech(speech);
         } else {
             service.speak("saliendo.");
