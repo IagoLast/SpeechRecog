@@ -51,4 +51,19 @@ public class VtNaive implements Voicetivity {
 
         }
     }
+
+    @Override
+    public String getIconName() {
+        return "ic_text";
+    }
+
+    @Override
+    public String getName() {
+        return "Naive vt";
+    }
+
+    @Override
+    public String getDesc() {
+        return "Sample voicetivity which don´t do nothing";
+    }
 }

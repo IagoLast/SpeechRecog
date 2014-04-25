@@ -9,23 +9,26 @@ import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
+import es.udc.iagolast.speechrecog.speechrecog.adapters.VtAdapter;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.NaiveVt.VtNaive;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWritter;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.sampleVt.VtSample;
 
 public class MainActivity extends Activity implements OnInitListener {
-
-    private TextView textView;
-    private Button recordButton;
-    private Button listenButton;
-
     private TextToSpeech textToSpeech;
     private SpeechRecognitionService speechRecognitionService;
+
+    private ListView listView;
+    private List<Voicetivity> voicetivityList;
+    private VtAdapter vtAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,17 +50,31 @@ public class MainActivity extends Activity implements OnInitListener {
      * Find each ui element and and assigns it to his local variable.
      */
     private void loadUI() {
-        recordButton = (Button) findViewById(R.id.button);
-        listenButton = (Button) findViewById(R.id.button2);
-        textView = (TextView) findViewById(R.id.textView);
+        voicetivityList = new ArrayList<Voicetivity>();
+        voicetivityList.add(new VtNaive(this));
+        voicetivityList.add(new VtParrot(textToSpeech));
+        voicetivityList.add(new VtSample(textToSpeech, speechRecognitionService));
+
+        listView = (ListView) findViewById(R.id.listView);
+
+        vtAdapter = new VtAdapter(this, voicetivityList);
+        listView.setAdapter(vtAdapter);
     }
 
     /**
      * Assigns listeners to buttons.
      */
     private void setListeners() {
-        recordButton.setOnClickListener(onButtonParrotClick);
-        listenButton.setOnClickListener(onButtonTwoClick);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (view.getAlpha() == 0.2f) {
+                    view.setAlpha(1.0f);
+                } else {
+                    view.setAlpha(0.2f);
+                }
+            }
+        });
     }
 
     /**
@@ -67,24 +84,6 @@ public class MainActivity extends Activity implements OnInitListener {
         bindService(SpeechRecognitionService.getServiceIntent(this),
                 speechRecogniterConnection, Context.BIND_AUTO_CREATE);
     }
-
-    /**
-     *
-     */
-    OnClickListener onButtonParrotClick = new OnClickListener() {
-        public void onClick(View v) {
-            speechRecognitionService.setCurrentVoicetivity(new VtParrot(textToSpeech));
-        }
-    };
-
-    /**
-     * When clicked app reads text in the textView.
-     */
-    OnClickListener onButtonTwoClick = new OnClickListener() {
-        public void onClick(View v) {
-            speechRecognitionService.setCurrentVoicetivity(new VtWritter(textView));
-        }
-    };
 
     /**
      * Service connection que asigna una voicetivity y empieza a escuchar cuando se conecta.

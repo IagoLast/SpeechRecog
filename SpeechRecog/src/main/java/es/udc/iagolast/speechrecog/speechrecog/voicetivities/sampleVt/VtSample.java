@@ -27,6 +27,21 @@ public class VtSample implements Voicetivity {
         state.processSpeech(speech);
     }
 
+    @Override
+    public String getIconName() {
+        return "ic_launcher";
+    }
+
+    @Override
+    public String getName() {
+        return "Ziri";
+    }
+
+    @Override
+    public String getDesc() {
+        return "Main voicetivity";
+    }
+
     public void speak(String text) {
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
     }

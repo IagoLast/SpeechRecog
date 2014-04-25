@@ -6,7 +6,7 @@
     </style>
 
     <style name="ZiriActionBarTheme" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">#395F8D</item>
+        <item name="android:background">@color/ziri_blue</item>
         <item name="android:titleTextStyle">@style/ZiriTheme.ActionBar.TitleTextStyle</item>
 
     </style>

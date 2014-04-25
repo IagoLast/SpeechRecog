@@ -19,4 +19,19 @@ public class VtParrot implements Voicetivity {
         textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
     }
 
+    @Override
+    public String getIconName() {
+        return "ic_parrot";
+    }
+
+    @Override
+    public String getName() {
+        return "Parrot";
+    }
+
+    @Override
+    public String getDesc() {
+        return "Repeat every thing that you say";
+    }
+
 }

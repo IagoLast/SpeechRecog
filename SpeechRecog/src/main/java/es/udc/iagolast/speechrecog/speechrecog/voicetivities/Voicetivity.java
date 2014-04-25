@@ -11,4 +11,10 @@ public interface Voicetivity {
      */
     public void processSpeech(String speech);
 
+    public String getIconName();
+
+    public String getName();
+
+    public String getDesc();
+
 }
