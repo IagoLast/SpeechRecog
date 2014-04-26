@@ -52,8 +52,7 @@ public class Listener implements RecognitionListener {
 
 
     public void onReadyForSpeech(Bundle params) {
-        Log.d("Listener", "onReadyForSpeech");
-        // Un-mute volume.
+        Log.d("Listener", "onReadyForSpeech (Audio ON)");
         AudioManager audioManager = (AudioManager) speechRecognitionService.getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, speechRecognitionService.volume, 0);
 

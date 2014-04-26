@@ -3,9 +3,13 @@ package es.udc.iagolast.speechrecog.speechrecog;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -23,23 +27,33 @@ public class MainActivity extends Activity {
     private ListView listView;
     private List<Voicetivity> voicetivityList;
     private VtAdapter vtAdapter;
+    private Intent intent;
+    private boolean bound;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startService(SpeechRecognitionService.getServiceIntent(this));
-        bindSpeechRecognizer();
+        intent = new Intent(this, SpeechRecognitionService.class);
+        startService(intent);
         loadUI();
         setListeners();
     }
 
     @Override
-    protected void onDestroy() {
-        unbindService(speechRecogniterConnection);
-        super.onDestroy();
+    protected void onStart() {
+        bindSpeechRecognizer(intent);
+        super.onStart();
     }
 
+    @Override
+    protected void onStop() {
+        if (bound) {
+            unbindService(speechRecogniterConnection);
+        }
+        bound = false;
+        super.onStop();
+    }
 
     /**
      * Find each ui element and and assigns it to his local variable.
@@ -75,9 +89,8 @@ public class MainActivity extends Activity {
     /**
      * Binds a speech recognizer to this activity.
      */
-    private void bindSpeechRecognizer() {
-        bindService(SpeechRecognitionService.getServiceIntent(this),
-                speechRecogniterConnection, Context.BIND_AUTO_CREATE);
+    private void bindSpeechRecognizer(Intent intent) {
+        bindService(intent, speechRecogniterConnection, Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -85,34 +98,38 @@ public class MainActivity extends Activity {
      */
     private ServiceConnection speechRecogniterConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName arg0, IBinder bind) {
+        public void onServiceConnected(ComponentName name, IBinder bind) {
             SimpleBinder sBinder = (SimpleBinder) bind;
             speechRecognitionService = sBinder.getService();
             voicetivityList = VoicetivityManager.getInstance(speechRecognitionService).getVoicetivityList();
             populateListView(voicetivityList);
+            bound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
         }
     };
 
-    /** Por alguna puta razon es imposible matar al service.
-     @Override public boolean onCreateOptionsMenu(Menu menu) {
-     MenuInflater inflater = getMenuInflater();
-     inflater.inflate(R.menu.main, menu);
-     return true;
-     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
 
-     @Override public boolean onOptionsItemSelected(MenuItem item) {
-     // Handle item selection
-     switch (item.getItemId()) {
-     case R.id.action_exit:
-     stopService(SpeechRecognitionService.getServiceIntent(this));
-     finish();
-     default:
-     return super.onOptionsItemSelected(item);
-     }
-     }
-     **/
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_exit:
+                unbindService(speechRecogniterConnection);
+                bound = false;
+                stopService(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }
