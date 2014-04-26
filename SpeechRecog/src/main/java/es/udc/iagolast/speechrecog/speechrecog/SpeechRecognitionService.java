@@ -17,21 +17,19 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
-    private final int TIMEOUT = 500;
+    public int volume;  //Used to restore the volume to the original value.
     private Voicetivity currentVoicetivity;
-    private SpeechRecognizer speechRecognizer = null;
-    private boolean listening = false;
     private static Intent serviceIntent = null;
-    private final IBinder sBinder = (IBinder) new SimpleBinder();
-    public int volume;
+    private SpeechRecognizer speechRecognizer = null;
     private TextToSpeech textToSpeech;
+    private final IBinder sBinder = (IBinder) new SimpleBinder();
+    private String TAG = "SERVICE";
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        serviceIntent = intent;
+    public void onCreate() {
+        Log.d(TAG, "onCreate");
+        super.onCreate();
         initService();
-        startListening();
-        return START_STICKY;
     }
 
     /**
@@ -39,9 +37,26 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      */
     private void initService() {
         textToSpeech = new TextToSpeech(this, this);
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new Listener(this));
         setCurrentVoicetivity(VoicetivityManager.getInstance(this).getVoicetivity("Main"));
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        if (serviceIntent == null) {
+            serviceIntent = intent;
+        }
+        return START_STICKY;
+    }
+
+    @Override
+    public void onInit(int status) {
+        Log.d(TAG, "onInit");
+        if (status == TextToSpeech.SUCCESS) {
+            startListening();
+        }
     }
 
     /**
@@ -49,8 +64,44 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      * When listening notification is shown.
      */
     public void startListening() {
-        changeListening(true);
+        speechRecognizer.startListening(serviceIntent);
+        muteAudio();
         startForeground(1337, buildNofification());
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        destroyService();
+        super.onDestroy();
+    }
+
+    private void destroyService() {
+        textToSpeech.stop();
+        textToSpeech.shutdown();
+        speechRecognizer.destroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
+        return sBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind");
+        return super.onUnbind(intent);
+    }
+
+    /**
+     * Mute volume to hide "BEEP" while listening.
+     */
+    private void muteAudio() {
+        Log.d(TAG, "muteAudio");
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
     }
 
     /**
@@ -68,53 +119,6 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     /**
-     * Start/Stop listening.
-     * This is used internally to synchronize the listening flag while providing a clean interface.
-     *
-     * @param listen Listen the user.
-     */
-    private synchronized void changeListening(boolean listen) {
-        if (listening == listen) {
-            return; // Nothing changes
-        }
-        listening = listen;
-        Log.d("SpeechRecognitionService", speechRecognizer + "");
-        if (listen) {
-            speechRecognizer.startListening(serviceIntent);
-            muteAudio();
-        } else {
-            speechRecognizer.stopListening();
-        }
-    }
-
-    /**
-     * Mute volume to hide "BEEP" while listening.
-     */
-    private void muteAudio() {
-        //
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-    }
-
-    public static synchronized Intent getServiceIntent(Context context) {
-        if (serviceIntent == null) {
-            serviceIntent = new Intent(context, SpeechRecognitionService.class);
-            context.startService(serviceIntent);
-        }
-        return serviceIntent;
-    }
-
-
-    /**
-     * Stop listening for user input.
-     */
-    public void stopListening() {
-        changeListening(false);
-        stopForeground(true);
-    }
-
-    /**
      * Change current voicetivity.
      *
      * @param voicetivity Voicetivity to receive the incoming input.
@@ -125,7 +129,6 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         currentVoicetivity = voicetivity;
         return lastVoicetivity;
     }
-
 
     /**
      * Send the words the user has spoken to the current Voicetivity.
@@ -151,15 +154,9 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     /**
-     * Performs a little thread sleep, this is the way how we can listen
-     * several consecutive times.
+     * Waits until texToSpeech ends speaking to start listening again.
      */
     public void waitAndRun() {
-        try {
-            Thread.sleep(TIMEOUT);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         while (textToSpeech.isSpeaking()) {
             //Wait until stop speaking.
         }
@@ -167,10 +164,18 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         muteAudio();
     }
 
+    /**
+     * @param speech
+     */
     public void speak(String speech) {
         textToSpeech.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
     }
 
+    /**
+     *
+     * @param speech
+     * @param flush
+     */
     public void speak(String speech, Boolean flush) {
         if (flush) {
             speak(speech);
@@ -179,19 +184,9 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         }
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return sBinder;
-    }
-
     class SimpleBinder extends Binder {
         SpeechRecognitionService getService() {
             return SpeechRecognitionService.this;
         }
-    }
-
-    @Override
-    public void onInit(int status) {
-
     }
 }
