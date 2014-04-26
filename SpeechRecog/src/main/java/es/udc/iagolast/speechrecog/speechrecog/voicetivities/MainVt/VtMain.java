@@ -2,6 +2,7 @@ package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.os.StrictMode;
 import android.provider.AlarmClock;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -55,7 +56,20 @@ public class VtMain implements Voicetivity {
         } else if (speech.matches("correo")) {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));
         } else if (speech.matches("tiempo")) {
+            service.speak("¿que ciudad?");
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Weather"));
+        } else if (speech.matches("qué tiempo hace") || speech.matches("dime qué tiempo hace")) {
+            try {
+                // Enable Network on Main Thread
+                StrictMode.ThreadPolicy defaultPolicy = StrictMode.getThreadPolicy();
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                Forecast forecast = new Forecast(service);
+                service.speak(forecast.getWeatherForecastInUserLocation());
+                StrictMode.setThreadPolicy(defaultPolicy);
+            } catch (Exception e) {
+                service.speak("No se..");
+            }
         }
     }
 
