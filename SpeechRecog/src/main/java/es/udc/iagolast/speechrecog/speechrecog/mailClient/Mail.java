@@ -5,11 +5,20 @@ public class Mail {
     private String subject;
     private String from;
     private String body;
+    private Boolean read;
 
     public Mail(String subject, String from, String body) {
         this.subject = subject;
         this.from = from;
         this.body = body;
+        this.read = null;
+    }
+
+    public Mail(String subject, String from, String body, boolean read) {
+        this.subject = subject;
+        this.from = from;
+        this.body = body;
+        this.read = read;
     }
 
     public String getSubject() {
@@ -34,6 +43,10 @@ public class Mail {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Boolean getRead() {
+        return read;
     }
 
 }
