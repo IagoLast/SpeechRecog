@@ -97,11 +97,19 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     /**
      * Mute volume to hide "BEEP" while listening.
      */
-    private void muteAudio() {
+    public void muteAudio() {
         Log.d(TAG, "muteAudio");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+    }
+
+    /**
+     * Un-mute volume to the original level saved in volume.
+     */
+    public void unMuteAudio() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
     /**
@@ -172,7 +180,6 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     /**
-     *
      * @param speech
      * @param flush
      */
