@@ -60,14 +60,16 @@ class IMAPListener implements ProtocolCommandListener {
             Log.d("IMAPClient/SpeechRecognizer", "?? " + message.split("\n")[0]);
             if (message.split("\n")[0].toUpperCase().contains("FROM")){
                 try {
-                    from = MimeUtility.decodeText(message.split("\n")[1]);
+                    from = MimeUtility.decodeText(message.split("\n")[1])
+                            .split(":", 2)[1];
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
             else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")){
                 try {
-                    subject = MimeUtility.decodeText(message.split("\n")[1]);
+                    subject = MimeUtility.decodeText(message.split("\n")[1])
+                            .split(":", 2)[1];
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
