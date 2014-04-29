@@ -2,12 +2,14 @@ package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
 import android.util.Log;
 
+import org.apache.commons.fileupload.util.mime.MimeUtility;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.imap.IMAPClient;
 import org.apache.commons.net.imap.IMAPCommand;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 
@@ -57,10 +59,18 @@ class IMAPListener implements ProtocolCommandListener {
         else if (message.contains(" FETCH ")) {
             Log.d("IMAPClient/SpeechRecognizer", "?? " + message.split("\n")[0]);
             if (message.split("\n")[0].toUpperCase().contains("FROM")){
-                from = message.split("\n")[1];
+                try {
+                    from = MimeUtility.decodeText(message.split("\n")[1]);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
             else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")){
-                subject = message.split("\n")[1];
+                try {
+                    subject = MimeUtility.decodeText(message.split("\n")[1]);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
             else if (message.split("\n")[0].toUpperCase().contains("TEXT")){
                 String[] lines = message.split("\n");
@@ -72,7 +82,11 @@ class IMAPListener implements ProtocolCommandListener {
                     }
                     builder.append(lines[i]);
                 }
-                text = builder.toString();
+                try {
+                    text = MimeUtility.decodeText(builder.toString());
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
             else if (message.split("\n")[0].toUpperCase().contains("FLAGS")){
                 read = message.split("\n")[0].toUpperCase().contains("SEEN");
@@ -81,7 +95,8 @@ class IMAPListener implements ProtocolCommandListener {
             /// @TODO use the UID to make sure the mail is assembled correctly
             if ((read != null) && (from != null) && (subject != null) && (text != null)){
                 Mail mail = new Mail(subject, from, text, read);
-                Log.d("IMAPListener/SpeechRecog", "Added mail, read? " + read);
+                Log.d("IMAPListener/SpeechRecog", "Added mail, read? " + read
+                                                + " Subject: " + subject);
 
                 subject = from = text = null;
                 read = null;
