@@ -20,10 +20,10 @@ import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
 public class IMAPMailClient implements MailClient {
 
     IMAPClientService clientService;
-    List<Mail> mailList = new ArrayList<Mail>();
+    List<IMAPMail> mailList = new ArrayList<IMAPMail>();
     int index = 0;
 
-    public void addMail(Mail mail) {
+    public void addMail(IMAPMail mail) {
         mailList.add(mail);
     }
 
@@ -86,7 +86,7 @@ public class IMAPMailClient implements MailClient {
 
     @Override
     public boolean hasUnreadMail() {
-        for (Mail mail: mailList){
+        for (IMAPMail mail: mailList){
             if (!mail.getRead()){
                 return true;
             }
@@ -97,19 +97,19 @@ public class IMAPMailClient implements MailClient {
     @Override
     public List<Mail> getUnreadMails() {
         List<Mail> unreadMail = new ArrayList<Mail>();
-        for (Mail mail:mailList){
+        for (IMAPMail mail:mailList){
             if (!mail.getRead()){
                 unreadMail.add(mail);
             }
         }
-        return null;
+        return unreadMail;
     }
 
     @Override
     public List<Mail> getAllMails() {
         // Copiamos la lista para que los cambios de una no afecten a otra
         List<Mail> safeMailList = new ArrayList<Mail>(mailList.size());
-        for (Mail mail:mailList){
+        for (IMAPMail mail:mailList){
             safeMailList.add(mail);
         }
         return safeMailList;

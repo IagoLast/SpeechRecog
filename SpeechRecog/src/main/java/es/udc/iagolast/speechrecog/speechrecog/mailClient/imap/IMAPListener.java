@@ -94,7 +94,7 @@ class IMAPListener implements ProtocolCommandListener {
 
             /// @TODO use the UID to make sure the mail is assembled correctly
             if ((read != null) && (from != null) && (subject != null) && (text != null)){
-                Mail mail = new Mail(subject, from, text, read);
+                IMAPMail mail = new IMAPMail(subject, from, text, read);
                 Log.d("IMAPListener/SpeechRecog", "Added mail, read? " + read
                                                 + " Subject: " + subject);
 
