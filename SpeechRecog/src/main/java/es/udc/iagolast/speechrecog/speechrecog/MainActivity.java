@@ -127,6 +127,8 @@ public class MainActivity extends Activity {
                 bound = false;
                 stopService(intent);
                 finish();
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }

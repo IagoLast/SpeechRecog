@@ -3,8 +3,6 @@
 
     <string name="app_name">Ziri</string>
     <string name="stop_ziri">Stop ziri</string>
-
-
     <string name="Speech_Keyword_Exit">salir</string>
     <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo</string>
     <string name="Speech_Keyword_No">no</string>
@@ -12,14 +10,14 @@
     <string name="Speech_Keyword_Check_Mail">comprobar correo</string>
     <string name="Speech_Keyword_Write_Mail">escribir mail</string>
     <string name="Speech_Keyword_Unread_Mail">Hay e-mails sin leer, ¿Quieres saber de quién?</string>
-
-
     <string name="Speech_Response_Leave_Mail_Voicetivity">Saliendo del gestor de correo.</string>
     <string name="Speech_Response_Dont_Understand">No he entendido tu orden.</string>
     <string name="Speech_Response_Non_Unread_Mail">No hay e-mails sin leer.</string>
     <string name="Speech_Response_Mail_From">Tienes un e-mail de.</string>
     <string name="Speech_Response_Mail_From_End">¿Quieres que lo lea?</string>
     <string name="Speech_Response_No_More_Unread_Mail">No quedan más e-mails sin leer.</string>
-
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="settings">Settings</string>
 
 </resources>

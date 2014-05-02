@@ -1,11 +1,13 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPMailClient;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.mock.MailClientMock;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
@@ -18,7 +20,10 @@ public class VtMail implements Voicetivity {
     public VtMail(SpeechRecognitionService service) {
         this.service = service;
         state = new MailVtInitialState(this);
-        mailClient = new IMAPMailClient("someRandomUser", "someRandomPassword", "imap.gmail.com", 993);
+        SharedPreferences sharedPreferences = service.getSharedPreferences("ziriPrefs", Context.MODE_PRIVATE);
+        String username = sharedPreferences.getString("mail", "");
+        String password = sharedPreferences.getString("password", "");
+        mailClient = new IMAPMailClient(username, password, "imap.gmail.com", 993);
     }
 
     protected void speak(String speech, Boolean flush) {
