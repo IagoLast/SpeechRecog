@@ -52,6 +52,7 @@ public class VtMain implements Voicetivity {
             service.startActivity(intent);
 
         } else if (speech.matches("activar loro")) {
+            service.speak("loro");
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
         } else if (speech.matches("correo")) {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));

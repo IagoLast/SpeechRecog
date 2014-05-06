@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Binder;
 import android.os.IBinder;
 import android.speech.SpeechRecognizer;
@@ -17,13 +18,17 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
-    public int volume;  //Used to restore the volume to the original value.
+    public final int TONE_ERROR = 0;
+    public final int TONE_OK = 1;
+
+    private int volume;  //Used to restore the volume to the original value.
     private Voicetivity currentVoicetivity;
     private static Intent serviceIntent = null;
     private SpeechRecognizer speechRecognizer = null;
     private TextToSpeech textToSpeech;
     private final IBinder sBinder = (IBinder) new SimpleBinder();
     private String TAG = "SERVICE";
+    ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
 
     @Override
     public void onCreate() {
@@ -97,11 +102,19 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     /**
      * Mute volume to hide "BEEP" while listening.
      */
-    private void muteAudio() {
+    public void muteAudio() {
         Log.d(TAG, "muteAudio");
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+    }
+
+    /**
+     * Un-mute volume to the original level saved in volume.
+     */
+    public void unMuteAudio() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
     /**
@@ -172,7 +185,6 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     /**
-     *
      * @param speech
      * @param flush
      */
@@ -184,9 +196,24 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         }
     }
 
+    public void playTone(int tone) {
+        switch (tone) {
+            case TONE_ERROR:
+                toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 250);
+                break;
+            case TONE_OK:
+                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 250);
+                break;
+            default:
+                toneGenerator.startTone(tone, 500);
+
+        }
+    }
+
     class SimpleBinder extends Binder {
         SpeechRecognitionService getService() {
             return SpeechRecognitionService.this;
         }
     }
+
 }
