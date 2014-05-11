@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +23,13 @@ public class IMAPMailClient implements MailClient {
     IMAPClientService clientService;
     List<IMAPMail> mailList = new ArrayList<IMAPMail>();
     int index = 0;
+    final static private int TIMEOUT = 60000;
 
     public void addMail(IMAPMail mail) {
         mailList.add(mail);
     }
 
     private class IMAPClientService extends AsyncTask<Void,Void,Void> {
-
-        final static private int TIMEOUT = 60000;
 
         IMAPClient client;
         String userName;
@@ -67,7 +67,7 @@ public class IMAPMailClient implements MailClient {
                 Log.d("IMAPClient/SpeechRecog", "Client selects");
                 client.select("inbox");
                 Log.d("IMAPClient/SpeechRecog", "Client searches");
-                client.search("ALL");
+                client.search("UNSEEN");
                 Log.d("IMAPClient/SpeechRecog", "Client expects");
 
             } catch (IOException e) {
@@ -83,6 +83,32 @@ public class IMAPMailClient implements MailClient {
         clientService = new IMAPClientService(userName, password, host, port, this);
         clientService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
+
+    /// @NOTE Don't call from UI thread
+    public static boolean checkCredentials(String userName, String password,
+                                           String host, int port){
+
+        boolean validCredentials = false;
+        IMAPSClient client = new IMAPSClient("TLS", true);
+        client.setDefaultTimeout(TIMEOUT);
+        client.setConnectTimeout(TIMEOUT);
+        try {
+            Log.d("IMAPClient/SpeechRecog", "Cred-checker connecting");
+            client.connect(host, port);
+            Log.d("IMAPClient/SpeechRecog", "Cred-checker connected");
+
+            validCredentials = client.login(userName, password);
+            client.disconnect();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return validCredentials;
+    }
+
 
     @Override
     public boolean hasUnreadMail() {

@@ -19,5 +19,8 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="settings">Settings</string>
+    <string name="save_preferences">Save</string>
+    <string name="invalid_user_pass">Invalid user/password</string>
+    <string name="checking_credentials">Checking credentials...</string>
 
 </resources>
