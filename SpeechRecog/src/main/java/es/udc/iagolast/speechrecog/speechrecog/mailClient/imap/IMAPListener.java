@@ -1,5 +1,6 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import org.apache.commons.fileupload.util.mime.MimeUtility;
@@ -9,19 +10,19 @@ import org.apache.commons.net.imap.IMAPClient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 class IMAPListener implements ProtocolCommandListener {
 
     IMAPMailClient iface;
     IMAPClient client;
-    private String subject = null;
-    private String from = null;
-    private String text = null;
-    private Boolean read = null;
+    private Map<Integer, IMAPMail> mailsToComplete;
 
     public IMAPListener(IMAPMailClient iface, IMAPClient client) {
         this.iface = iface;
         this.client = client;
+        this.mailsToComplete = new HashMap<Integer, IMAPMail>();
     }
 
     @Override
@@ -39,7 +40,8 @@ class IMAPListener implements ProtocolCommandListener {
         for (String uid : uidSeq.split("\\s")) {
             try {
                 Log.d("IMAPListener/SpeechRecog", "UID " + uid);
-                Integer.parseInt(uid);
+                Integer iuid = Integer.parseInt(uid);
+                mailsToComplete.put(iuid, new IMAPMail());
                 client.fetch(uid, "FLAGS");
                 client.fetch(uid, "BODY.PEEK[HEADER.FIELDS (Subject)]");
                 client.fetch(uid, "BODY.PEEK[HEADER.FIELDS (From)]");
@@ -127,26 +129,32 @@ class IMAPListener implements ProtocolCommandListener {
             return;
         }
 
-
-        if (message.split("\n")[0].toUpperCase().contains("FROM")) {
-            from = extractFromField(message);
-        } else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")) {
-            subject = extractSubjectField(message);
-        } else if (message.split("\n")[0].toUpperCase().contains("TEXT")) {
-            text = extractMailBody(message);
-        } else if (message.split("\n")[0].toUpperCase().contains("FLAGS")) {
-            read = isFlagSeenSet(message);
+        IMAPMail mail= mailsToComplete.get(uid);
+        if (mail == null){
+            Log.w("IMAPClient/SpeechRecognizer", "UID \"" + uid + "\" not found");
+            return;
         }
 
-        /// @TODO use the UID to make sure the mail is assembled correctly
-        if ((read != null) && (from != null) && (subject != null) && (text != null)) {
-            IMAPMail mail = new IMAPMail(subject, from, text, read);
-            Log.d("IMAPListener/SpeechRecog", "Added mail, read? " + read
-                    + " Subject: " + subject);
+        if (message.split("\n")[0].toUpperCase().contains("FROM")) {
+            mail.setFrom(extractFromField(message));
+        } else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")) {
+            mail.setSubject(extractSubjectField(message));
+        } else if (message.split("\n")[0].toUpperCase().contains("TEXT")) {
+            mail.setBody(extractMailBody(message));
+        } else if (message.split("\n")[0].toUpperCase().contains("FLAGS")) {
+            mail.setRead(isFlagSeenSet(message));
+        }
 
-            subject = from = text = null;
-            read = null;
+        // Mail completed, pass it around
+        if ((mail.getRead() != null) && (mail.getFrom() != null)
+         && (mail.getSubject() != null) && (mail.getBody() != null)) {
+
+            Log.d("IMAPListener/SpeechRecog",
+                    "Added mail, read? " + mail.getRead()
+                    + " Subject: " + mail.getSubject());
+
             iface.addMail(mail);
+            mailsToComplete.remove(uid);
         }
     }
 
