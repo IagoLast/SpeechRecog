@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity.VtMail;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
@@ -25,7 +26,7 @@ public class VoicetivityManager {
         voicetivityMap = new HashMap<String, Voicetivity>();
         voicetivityMap.put("Main", new VtMain(this.service));
         voicetivityMap.put("Parrot", new VtParrot(this.service));
-        //voicetivityMap.put("Mail", new VtMail(this.service));
+        voicetivityMap.put("Mail", new VtMail(this.service));
         voicetivityMap.put("Weather", new VtWeather(this.service));
     }
 
