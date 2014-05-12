@@ -26,7 +26,7 @@ public class MailVtInitialState implements MailVoicetivityState {
         if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Check_Mail))) {
 
             if (voicetivity.mailClient.hasUnreadMail()) {
-                voicetivity.speak(res.getString(R.string.Speech_Keyword_Unread_Mail), true);
+                voicetivity.speak(res.getString(R.string.Speech_Response_Unread_Mail), true);
                 voicetivity.state = new MailVtStateOne(voicetivity);
 
             } else

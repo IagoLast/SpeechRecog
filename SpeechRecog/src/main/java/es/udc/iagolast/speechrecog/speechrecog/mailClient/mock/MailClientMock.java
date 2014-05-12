@@ -13,18 +13,19 @@ public class MailClientMock implements MailClient {
     Stack<Mail> unreadMailStack;
     List<Mail> readMails;
 
-    private final String SUBJECT_BASE_STRING = "Test Subject";
-    private final String FROM_BASE_STRING = "Remmitent.test";
-    private final String FROM_END_STRING = "@Whatever.com";
-    private final String BODY_BASE_STRING = "BODY BODY BODY TEST";
+    private final String SUBJECT_BASE_STRING = "Tema de prueba";
+    private final String FROM_BASE_STRING = "Remitente.prueba";
+    private final String FROM_END_STRING = "@mail.com";
+    private final String BODY_BASE_STRING = "Esto es un mail de prueba";
+    private final String TO_MAIL_STRING = "mimail@mail.com";
 
     public MailClientMock() {
 
-        Mail readMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING + 1 + FROM_END_STRING, BODY_BASE_STRING + 1);
-        Mail readMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING + 2 + FROM_END_STRING, BODY_BASE_STRING + 2);
+        Mail readMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING + 1 + FROM_END_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 1);
+        Mail readMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING + 2 + FROM_END_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 2);
 
-        Mail unreadMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING + 1 + FROM_END_STRING, BODY_BASE_STRING + 1);
-        Mail unreadMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING + 2 + FROM_END_STRING, BODY_BASE_STRING + 2);
+        Mail unreadMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING + 1 + FROM_END_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 1);
+        Mail unreadMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING + 2 + FROM_END_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 2);
 
         unreadMailStack = new Stack<Mail>();
         readMails = new LinkedList<Mail>();
@@ -56,5 +57,12 @@ public class MailClientMock implements MailClient {
     public Mail getNextMail() {
         readMails.add(unreadMailStack.peek());
         return unreadMailStack.pop();
+    }
+
+    @Override
+    public boolean sendMail(Mail mail) {
+        return (Math.random() > 0.5);
+
+
     }
 }
