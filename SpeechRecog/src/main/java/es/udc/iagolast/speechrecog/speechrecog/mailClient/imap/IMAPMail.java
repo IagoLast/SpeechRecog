@@ -10,8 +10,15 @@ public class IMAPMail extends Mail {
         this.read = read;
     }
 
+    public IMAPMail() {
+        super(null, null, null);
+    }
+
     public Boolean getRead() {
         return read;
     }
 
+    public void setRead(Boolean read) {
+        this.read = read;
+    }
 }

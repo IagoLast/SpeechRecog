@@ -42,4 +42,13 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="15dp"
         android:layout_marginRight="10dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_preferences"
+        android:id="@+id/but_save_prefs"
+        android:layout_below="@+id/editText2"
+        android:layout_centerHorizontal="true"
+        android:onClick="checkPreferences" />
 </RelativeLayout>
