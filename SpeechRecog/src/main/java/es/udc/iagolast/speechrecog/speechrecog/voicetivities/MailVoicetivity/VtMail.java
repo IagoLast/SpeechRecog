@@ -37,6 +37,9 @@ public class VtMail implements Voicetivity {
         } else if (speech.matches(service.getString(R.string.Speech_Keyword_Help_Request))) {
             state.onHelpRequest();
 
+        } else if (speech.equalsIgnoreCase(service.getResources().getString(R.string.Speech_Keyword_Exit))) {
+            state = new MailVtInitialState(this);
+            service.speak(service.getResources().getString(R.string.Speech_Response_Exiting));
         } else state.processSpeech(speech);
     }
 
