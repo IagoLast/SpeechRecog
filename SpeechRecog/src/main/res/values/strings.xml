@@ -12,7 +12,7 @@
     <string name="checking_credentials">Checking credentials...</string>
 
     <!-- Command Keywords -->
-    <string name="Speech_Keyword_Exit">salir</string>
+    <string name="Speech_Keyword_Exit">salir|atrás</string>
     <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo|salir del gestor de mail|salir del gestor </string>
     <string name="Speech_Keyword_No">No|no|negativo</string>
     <string name="Speech_Keyword_Yes">Si|Sí|si|afirmativo</string>
@@ -41,6 +41,7 @@
     <string name="Speech_Response_Subject"> con asunto:</string>
     <string name="Speech_Response_No_More_Mail">Ya has recorrido todos los mails</string>
     <string name="Speech_Response_No_Mail_Downloaded">No hay ningún mail descargado</string>
+    <string name="Speech_Response_Exiting">Volviendo al principio del gestor</string>
 
 
     <!-- MailVT InitialState Introduction -->

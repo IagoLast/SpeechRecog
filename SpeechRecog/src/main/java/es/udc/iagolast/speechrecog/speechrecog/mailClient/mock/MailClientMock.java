@@ -21,13 +21,13 @@ public class MailClientMock implements MailClient {
 
     public MailClientMock() {
 
-        Mail readMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 1);
-        Mail readMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 2);
-        Mail readMail3 = new Mail(SUBJECT_BASE_STRING + 3, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 3);
+        Mail readMail1 = new Mail("Tu pedido de Amazon.es ha sido enviado", "confirmar-envio@amazon.es", TO_MAIL_STRING, "Estimado cliente: El pedido de código 1232442 te llegará el día 15.");
+        Mail readMail2 = new Mail("MANOLO!" + 2, "mail.desconocido@gmail.com", TO_MAIL_STRING, "Hey Manolo, cuanto tiempo!");
+        Mail readMail3 = new Mail("Mail de confirmación de asistencia al evento", "confirmacion@evento.com", TO_MAIL_STRING, "Hola, necesitamos su confirmación de que asistirá al evento Carrera de camellos este Sábado. Saludos");
 
-        Mail unreadMail1 = new Mail(SUBJECT_BASE_STRING + 1, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 1);
-        Mail unreadMail2 = new Mail(SUBJECT_BASE_STRING + 2, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 2);
-        Mail unreadMail3 = new Mail(SUBJECT_BASE_STRING + 3, FROM_BASE_STRING, TO_MAIL_STRING, BODY_BASE_STRING + 3);
+        Mail unreadMail1 = new Mail("Quedar para hacer Robótica", "iago.lastra@gmail.com", TO_MAIL_STRING, "Hola, quedamos a las cinco para hacer robótica?");
+        Mail unreadMail2 = new Mail("Concierto Extremoduro", "iago.lastra@gmail.com", TO_MAIL_STRING, "Eh, hay que coger las entradas para el concierto!");
+        Mail unreadMail3 = new Mail("Entrega práctica de la asignatura", "random.profesor@udc.es", TO_MAIL_STRING, "La entrega de la última práctica se aplaza al día 15. Saludos");
 
         unreadMailStack = new Stack<Mail>();
         readMails = new LinkedList<Mail>();
