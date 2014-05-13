@@ -19,11 +19,12 @@ public class VtMail implements Voicetivity {
 
     public VtMail(SpeechRecognitionService service) {
         this.service = service;
-        state = new MailVtInitialState(this);
         SharedPreferences sharedPreferences = service.getSharedPreferences("ziriPrefs", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("mail", "");
         String password = sharedPreferences.getString("password", "");
         mailClient = new IMAPMailClient(username, password, "imap.gmail.com", 993);
+        state = new MailVtInitialState(this);
+
     }
 
     protected void speak(String speech, Boolean flush) {
@@ -32,12 +33,13 @@ public class VtMail implements Voicetivity {
 
     @Override
     public void processSpeech(String speech) {
-        if (!speech.equalsIgnoreCase(service.getString(R.string.Speech_Keyword_Exit_Mail_Manager))) {
-            state.processSpeech(speech);
-        } else {
+        if (speech.matches(service.getString(R.string.Speech_Keyword_Exit_Mail_Manager))) {
             service.speak(service.getString(R.string.Speech_Response_Leave_Mail_Voicetivity));
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
-        }
+        } else if (speech.matches(service.getString(R.string.Speech_Keyword_Help_Request))) {
+            state.onHelpRequest();
+
+        } else state.processSpeech(speech);
     }
 
     @Override
@@ -54,4 +56,6 @@ public class VtMail implements Voicetivity {
     public String getDesc() {
         return "Lee tu correo solo por voz.";
     }
+
+
 }

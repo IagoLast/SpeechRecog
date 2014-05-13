@@ -26,20 +26,37 @@ public class MailVtStateThree implements MailVoicetivityState {
     public void processSpeech(String speech) {
         Log.d("State 3", "IN");
 
-        if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Yes))) {
+        if (speech.matches(res.getString(R.string.Speech_Keyword_Yes))) {
             voicetivity.state = new MailVtStateFour(voicetivity, mail);
 
-        } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_No))) {
+        } else if (speech.matches(res.getString(R.string.Speech_Keyword_No))) {
             voicetivity.state = new MailVtStateTwo(voicetivity);
 
-        } else voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
+        } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_ReRead))) {
+            readMail();
+
+        } else {
+            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
+
+        }
 
     }
 
+    @Override
+    public void onHelpRequest() {
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ResponseMail_Afirmative), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ResponseMail_Negative), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ReReadMail), false);
+
+    }
+
+    private void readMail() {
+        voicetivity.speak(mail.getBody(), true);
+
+    }
 
     private void init() {
-
-        voicetivity.speak(mail.getBody(), true);
+        readMail();
         voicetivity.speak(res.getString(R.string.Speech_Response_Ask_To_Reply), false);
 
     }

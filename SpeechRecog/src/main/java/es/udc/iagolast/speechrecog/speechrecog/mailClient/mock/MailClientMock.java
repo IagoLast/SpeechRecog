@@ -12,6 +12,7 @@ public class MailClientMock implements MailClient {
 
     Stack<Mail> unreadMailStack;
     List<Mail> readMails;
+    int index = 0;
 
     private final String SUBJECT_BASE_STRING = "Tema de prueba";
     private final String FROM_BASE_STRING = "Remitente.prueba";
@@ -55,6 +56,17 @@ public class MailClientMock implements MailClient {
 
     @Override
     public Mail getNextMail() {
+        try {
+            return readMails.get(index++);
+        } catch (IndexOutOfBoundsException e) {
+            index = 0;
+            return null;
+        }
+
+    }
+
+    @Override
+    public Mail getNextUnreadMail() {
         readMails.add(unreadMailStack.peek());
         return unreadMailStack.pop();
     }
