@@ -40,6 +40,7 @@
     <string name="Speech_Response_Current_MailBody">Hasta ahora has escrito.</string>
     <string name="Speech_Response_Subject"> con asunto:</string>
     <string name="Speech_Response_No_More_Mail">Ya has recorrido todos los mails</string>
+    <string name="Speech_Response_No_Mail_Downloaded">No hay ningún mail descargado</string>
 
 
     <!-- MailVT InitialState Introduction -->

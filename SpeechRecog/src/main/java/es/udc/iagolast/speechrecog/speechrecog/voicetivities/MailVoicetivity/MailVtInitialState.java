@@ -32,7 +32,11 @@ public class MailVtInitialState implements MailVoicetivityState {
             } else
                 voicetivity.speak(res.getString(R.string.Speech_Response_Non_Unread_Mail), true);
         } else if (speech.matches(res.getString(R.string.Speech_Keyword_ReadMail))) {
-            voicetivity.state = new MailVtStateFive(voicetivity);
+
+            if (!voicetivity.mailClient.getAllMails().isEmpty()) {
+                voicetivity.state = new MailVtStateFive(voicetivity);
+            } else
+                voicetivity.speak(res.getString(R.string.Speech_Response_No_Mail_Downloaded), false);
         } else
             voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
 

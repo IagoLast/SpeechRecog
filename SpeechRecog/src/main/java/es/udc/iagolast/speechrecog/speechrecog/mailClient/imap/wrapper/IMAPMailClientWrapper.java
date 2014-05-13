@@ -45,7 +45,6 @@ public class IMAPMailClientWrapper implements MailClient {
 
     }
 
-
     @Override
     public Mail getNextMail() {
         try {

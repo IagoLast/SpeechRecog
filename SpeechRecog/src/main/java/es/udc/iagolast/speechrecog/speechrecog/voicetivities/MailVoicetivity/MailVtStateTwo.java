@@ -32,7 +32,7 @@ public class MailVtStateTwo implements MailVoicetivityState {
             voicetivity.state = new MailVtStateThree(voicetivity, mail);
 
         } else if (speech.matches(res.getString(R.string.Speech_Keyword_No))) {
-            voicetivity.state = new MailVtStateTwo(voicetivity);
+            getNextUnreadMail();
 
         } else
             voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
@@ -51,7 +51,7 @@ public class MailVtStateTwo implements MailVoicetivityState {
 
     }
 
-    private void init() {
+    private void getNextUnreadMail() {
 
         mail = voicetivity.mailClient.getNextUnreadMail();
 
@@ -59,7 +59,13 @@ public class MailVtStateTwo implements MailVoicetivityState {
             voicetivity.speak(res.getString(R.string.Speech_Response_Mail_From) + mail.getFrom() + res.getString(R.string.Speech_Response_Subject) + mail.getSubject() + res.getString(R.string.Speech_Response_Mail_From_End), false);
         } else {
             voicetivity.speak(res.getString(R.string.Speech_Response_No_More_Unread_Mail), false);
-
+            voicetivity.state = new MailVtInitialState(voicetivity);
         }
+
+    }
+
+    private void init() {
+        getNextUnreadMail();
+
     }
 }
