@@ -23,16 +23,22 @@ public class MailVtStateOne implements MailVoicetivityState {
 
         Log.d("STATE 1", "IN");
 
-        if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Yes))) {
+        if (speech.matches(res.getString(R.string.Speech_Keyword_Yes))) {
             voicetivity.state = new MailVtStateTwo(voicetivity);
 
 
-        } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_No))) {
+        } else if (speech.matches(res.getString(R.string.Speech_Keyword_No))) {
             voicetivity.state = new MailVtInitialState(voicetivity);
 
         } else
             voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
 
+    }
+
+    @Override
+    public void onHelpRequest() {
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_CheckMail_Afirmative), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_CheckMail_Negative), false);
 
     }
 }

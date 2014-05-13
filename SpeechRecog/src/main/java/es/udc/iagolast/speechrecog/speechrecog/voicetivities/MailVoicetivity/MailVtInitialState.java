@@ -23,22 +23,33 @@ public class MailVtInitialState implements MailVoicetivityState {
 
         Log.d("INIT STATE", "IN");
 
-        if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Check_Mail))) {
+        if (speech.matches(res.getString(R.string.Speech_Keyword_Check_Mail))) {
 
             if (voicetivity.mailClient.hasUnreadMail()) {
-                voicetivity.speak(res.getString(R.string.Speech_Keyword_Unread_Mail), true);
+                voicetivity.speak(res.getString(R.string.Speech_Response_Unread_Mail), true);
                 voicetivity.state = new MailVtStateOne(voicetivity);
 
             } else
                 voicetivity.speak(res.getString(R.string.Speech_Response_Non_Unread_Mail), true);
+        } else if (speech.matches(res.getString(R.string.Speech_Keyword_ReadMail))) {
 
-        } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_Write_Mail))) {
-            //TODO
-            voicetivity.speak("Función no implementada aún.", true);
-
+            if (!voicetivity.mailClient.getAllMails().isEmpty()) {
+                voicetivity.state = new MailVtStateFive(voicetivity);
+            } else
+                voicetivity.speak(res.getString(R.string.Speech_Response_No_Mail_Downloaded), false);
         } else
             voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
 
 
     }
+
+    @Override
+    public void onHelpRequest() {
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_CheckMail_Command), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ReadMail_Command), false);
+
+
+    }
+
+
 }

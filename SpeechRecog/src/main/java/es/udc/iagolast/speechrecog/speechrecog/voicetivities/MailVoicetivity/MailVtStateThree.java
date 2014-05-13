@@ -1,7 +1,9 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
 
 import android.content.res.Resources;
+import android.util.Log;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 
 
@@ -22,13 +24,40 @@ public class MailVtStateThree implements MailVoicetivityState {
 
     @Override
     public void processSpeech(String speech) {
-        //TODO
+        Log.d("State 3", "IN");
+
+        if (speech.matches(res.getString(R.string.Speech_Keyword_Yes))) {
+            voicetivity.state = new MailVtStateFour(voicetivity, mail);
+
+        } else if (speech.matches(res.getString(R.string.Speech_Keyword_No))) {
+            voicetivity.state = new MailVtStateTwo(voicetivity);
+
+        } else if (speech.equalsIgnoreCase(res.getString(R.string.Speech_Keyword_ReRead))) {
+            readMail();
+
+        } else {
+            voicetivity.speak(res.getString(R.string.Speech_Response_Dont_Understand), true);
+
+        }
+
     }
 
+    @Override
+    public void onHelpRequest() {
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ResponseMail_Afirmative), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ResponseMail_Negative), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_ReReadMail), false);
+
+    }
+
+    private void readMail() {
+        voicetivity.speak(mail.getBody(), true);
+
+    }
 
     private void init() {
-
-        voicetivity.speak(mail.getBody(), true);
+        readMail();
+        voicetivity.speak(res.getString(R.string.Speech_Response_Ask_To_Reply), false);
 
     }
 }

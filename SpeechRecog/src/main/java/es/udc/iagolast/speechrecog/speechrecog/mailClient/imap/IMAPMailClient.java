@@ -3,17 +3,13 @@ package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.commons.net.imap.IMAPClient;
+import org.apache.commons.net.imap.IMAPSClient;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.net.imap.IMAPClient;
-import org.apache.commons.net.imap.IMAPSClient;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.security.auth.login.LoginException;
 
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
@@ -29,7 +25,7 @@ public class IMAPMailClient implements MailClient {
         mailList.add(mail);
     }
 
-    private class IMAPClientService extends AsyncTask<Void,Void,Void> {
+    private class IMAPClientService extends AsyncTask<Void, Void, Void> {
 
         IMAPClient client;
         String userName;
@@ -60,7 +56,7 @@ public class IMAPMailClient implements MailClient {
                 Log.d("IMAPClient/SpeechRecog", "Client connecting");
                 client.connect(host, port);
                 Log.d("IMAPClient/SpeechRecog", "Client connected");
-                if (!client.login(userName, password)){
+                if (!client.login(userName, password)) {
                     client.disconnect();
                     return null;
                 }
@@ -87,7 +83,7 @@ public class IMAPMailClient implements MailClient {
 
     /// @NOTE Don't call from UI thread
     public static boolean checkCredentials(String userName, String password,
-                                           String host, int port){
+                                           String host, int port) {
 
         boolean validCredentials = false;
         IMAPSClient client = new IMAPSClient("TLS", true);
@@ -112,8 +108,8 @@ public class IMAPMailClient implements MailClient {
 
     @Override
     public boolean hasUnreadMail() {
-        for (IMAPMail mail: mailList){
-            if (!mail.getRead()){
+        for (IMAPMail mail : mailList) {
+            if (!mail.getRead()) {
                 return true;
             }
         }
@@ -123,8 +119,8 @@ public class IMAPMailClient implements MailClient {
     @Override
     public List<Mail> getUnreadMails() {
         List<Mail> unreadMail = new ArrayList<Mail>();
-        for (IMAPMail mail:mailList){
-            if (!mail.getRead()){
+        for (IMAPMail mail : mailList) {
+            if (!mail.getRead()) {
                 unreadMail.add(mail);
             }
         }
@@ -135,7 +131,7 @@ public class IMAPMailClient implements MailClient {
     public List<Mail> getAllMails() {
         // Copiamos la lista para que los cambios de una no afecten a otra
         List<Mail> safeMailList = new ArrayList<Mail>(mailList.size());
-        for (IMAPMail mail:mailList){
+        for (IMAPMail mail : mailList) {
             safeMailList.add(mail);
         }
         return safeMailList;
@@ -145,9 +141,28 @@ public class IMAPMailClient implements MailClient {
     public Mail getNextMail() {
         try {
             return mailList.get(index++);
-        } catch(IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             index = 0;
             return null;
         }
     }
+
+    @Override
+    public Mail getNextUnreadMail() {
+        for (IMAPMail mail : mailList) {
+            if (!mail.getRead()) {
+                mail.setRead(true);
+                return mail;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean sendMail(Mail mail) {
+        return (Math.random() > 0.5);
+        //TODO Used for mock
+    }
+
 }

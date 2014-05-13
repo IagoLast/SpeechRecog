@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.Calendar;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
@@ -56,6 +57,9 @@ public class VtMain implements Voicetivity {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
         } else if (speech.matches("correo")) {
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));
+            service.speak(service.getResources().getString(R.string.Speech_Introduction_Welcome_Mail_Manager), false);
+            service.speak(service.getResources().getString(R.string.Speech_Introduction_General_Command_Help), false);
+            service.speak(service.getResources().getString(R.string.Speech_Introduction_General_Command_Leave_Manager), false);
         } else if (speech.matches("tiempo")) {
             service.speak("¿que ciudad?");
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Weather"));

@@ -1,6 +1,5 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
-import android.content.res.Resources;
 import android.util.Log;
 
 import org.apache.commons.fileupload.util.mime.MimeUtility;
@@ -34,7 +33,7 @@ class IMAPListener implements ProtocolCommandListener {
      *
      * @param message The raw message received
      */
-    private void receiveMailEnumeration(String message){
+    private void receiveMailEnumeration(String message) {
         String uidSeq = message.substring(9);
         Log.d("IMAPListener/SpeechRecog", "--> " + uidSeq);
         for (String uid : uidSeq.split("\\s")) {
@@ -54,15 +53,15 @@ class IMAPListener implements ProtocolCommandListener {
     }
 
 
-    private String extractFromField(String message){
+    private String extractFromField(String message) {
         try {
             return MimeUtility.decodeText(message.split("\n")[1])
                     .split(":", 2)[1];
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            try{
+            try {
                 return message.split("\n")[1].split(":", 2)[1];
-            } catch (IndexOutOfBoundsException ioobe){
+            } catch (IndexOutOfBoundsException ioobe) {
                 return message.split("\n")[1];
             }
         } catch (IndexOutOfBoundsException e) {
@@ -71,15 +70,15 @@ class IMAPListener implements ProtocolCommandListener {
     }
 
 
-    private String extractSubjectField(String message){
+    private String extractSubjectField(String message) {
         try {
             return MimeUtility.decodeText(message.split("\n")[1])
                     .split(":", 2)[1];
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            try{
+            try {
                 return message.split("\n")[1].split(":", 2)[1];
-            } catch (IndexOutOfBoundsException ioobe){
+            } catch (IndexOutOfBoundsException ioobe) {
                 return message.split("\n")[1];
             }
         } catch (IndexOutOfBoundsException e) {
@@ -88,12 +87,12 @@ class IMAPListener implements ProtocolCommandListener {
     }
 
 
-    private boolean isFlagSeenSet(String message){
+    private boolean isFlagSeenSet(String message) {
         return message.split("\n")[0].toUpperCase().contains("SEEN");
     }
 
 
-    private String extractMailBody(String message){
+    private String extractMailBody(String message) {
         String[] lines = message.split("\n");
         int l = lines.length - 1;
         StringBuilder builder = new StringBuilder(l - 1);
@@ -117,20 +116,20 @@ class IMAPListener implements ProtocolCommandListener {
      *
      * @param message
      */
-    private void receiveMailField(String message){
+    private void receiveMailField(String message) {
         int uid = -1;
         try {
             uid = Integer.parseInt(message.split(" ")[1]);
-        } catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             Log.e("IMAPClient/SpeechRecognizer", "Invalid FETCH line: " + message);
             return;
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             Log.e("IMAPClient/SpeechRecognizer", "Invalid FETCH line, UID not found: " + message);
             return;
         }
 
-        IMAPMail mail= mailsToComplete.get(uid);
-        if (mail == null){
+        IMAPMail mail = mailsToComplete.get(uid);
+        if (mail == null) {
             Log.w("IMAPClient/SpeechRecognizer", "UID \"" + uid + "\" not found");
             return;
         }
@@ -147,11 +146,12 @@ class IMAPListener implements ProtocolCommandListener {
 
         // Mail completed, pass it around
         if ((mail.getRead() != null) && (mail.getFrom() != null)
-         && (mail.getSubject() != null) && (mail.getBody() != null)) {
+                && (mail.getSubject() != null) && (mail.getBody() != null)) {
 
             Log.d("IMAPListener/SpeechRecog",
                     "Added mail, read? " + mail.getRead()
-                    + " Subject: " + mail.getSubject());
+                            + " Subject: " + mail.getSubject()
+            );
 
             iface.addMail(mail);
             mailsToComplete.remove(uid);

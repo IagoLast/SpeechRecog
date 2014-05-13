@@ -13,4 +13,8 @@ public interface MailClient {
 
     public Mail getNextMail();
 
+    public Mail getNextUnreadMail();
+
+    public boolean sendMail(Mail mail);
+
 }

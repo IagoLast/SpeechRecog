@@ -5,4 +5,6 @@ public interface MailVoicetivityState {
 
     public void processSpeech(String speech);
 
+    public void onHelpRequest();
+
 }
