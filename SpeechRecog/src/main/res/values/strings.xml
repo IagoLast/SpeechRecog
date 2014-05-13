@@ -13,17 +13,17 @@
 
     <!-- Command Keywords -->
     <string name="Speech_Keyword_Exit">salir</string>
-    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo|salir del gestor de mails </string>
+    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo|salir del gestor de mail|salir del gestor </string>
     <string name="Speech_Keyword_No">No|no|negativo</string>
     <string name="Speech_Keyword_Yes">Si|Sí|si|afirmativo</string>
     <string name="Speech_Keyword_Check_Mail">comprobar correo|comprobar mail</string>
     <string name="Speech_Keyword_Write_Mail">escribir correo|escribir mail</string>
     <string name="Speech_Keyword_Help_Request">ayuda|ayúdame</string>
     <string name="Speech_Keyword_ReadMail">leer correo|leer mail</string>
-    <string name="Speech_Keyword_ReRead">releer</string>
-    <string name="Speech_Keyword_Stop_Writing_Mail">finalizar respuesta</string>
-    <string name="Speech_Keyword_Delete_CurrentBody">borrar respuesta|eliminar respuesta</string>
-    <string name="Speech_Keyword_Read_CurrentBody">leer respuesta</string>
+    <string name="Speech_Keyword_ReRead">releer|volver a leer</string>
+    <string name="Speech_Keyword_Stop_Writing_Mail">finalizar respuesta|finalizar correo|finalizar mail</string>
+    <string name="Speech_Keyword_Delete_CurrentBody">borrar respuesta|eliminar respuesta|eliminar correo|borrar correo</string>
+    <string name="Speech_Keyword_Read_CurrentBody">leer respuesta|leer correo|leer mail</string>
 
 
     <!-- Ziri Responses -->
