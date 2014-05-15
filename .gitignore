@@ -12,6 +12,7 @@
 bin/
 gen/
 
+
 # Local configuration file (sdk path, etc)
 local.properties
 
@@ -27,6 +28,7 @@ local.properties
 #.idea/workspace.xml - uncomment this and comment/delete .idea if it better suit your needs
 .gradle
 /*/out
+/*/build
 /*/*/build
 /*/*/production
 *.iml
