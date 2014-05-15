@@ -14,20 +14,18 @@ public class MailClientMock implements MailClient {
     List<Mail> readMails;
     int index = 0;
 
-    private final String SUBJECT_BASE_STRING = "Hola soy un mail de Prueba ";
-    private final String FROM_BASE_STRING = "iago.lastra@gmail.com";
-    private final String BODY_BASE_STRING = "Hola, es posible que llegue tarde a la reunión de las 10. Saludos";
+
     private final String TO_MAIL_STRING = "mimail@mail.com";
 
     public MailClientMock() {
 
         Mail readMail1 = new Mail("Tu pedido de Amazon.es ha sido enviado", "confirmar-envio@amazon.es", TO_MAIL_STRING, "Estimado cliente: El pedido de código 1232442 te llegará el día 15.");
-        Mail readMail2 = new Mail("MANOLO!" + 2, "mail.desconocido@gmail.com", TO_MAIL_STRING, "Hey Manolo, cuanto tiempo!");
+        Mail readMail2 = new Mail("Idea para Mail", "mail.desconocido@gmail.com", TO_MAIL_STRING, "Aquí tienes mi idea para rellenar un mail de ejemplo. Saludos.");
         Mail readMail3 = new Mail("Mail de confirmación de asistencia al evento", "confirmacion@evento.com", TO_MAIL_STRING, "Hola, necesitamos su confirmación de que asistirá al evento Carrera de camellos este Sábado. Saludos");
 
         Mail unreadMail1 = new Mail("Quedar para hacer Robótica", "iago.lastra@gmail.com", TO_MAIL_STRING, "Hola, quedamos a las cinco para hacer robótica?");
         Mail unreadMail2 = new Mail("Concierto Extremoduro", "iago.lastra@gmail.com", TO_MAIL_STRING, "Eh, hay que coger las entradas para el concierto!");
-        Mail unreadMail3 = new Mail("Entrega práctica de la asignatura", "random.profesor@udc.es", TO_MAIL_STRING, "La entrega de la última práctica se aplaza al día 15. Saludos");
+        Mail unreadMail3 = new Mail("Entrega práctica de la asignatura", "soy.un.profesor@udc.es", TO_MAIL_STRING, "La entrega de la última práctica se aplaza al día 15. Saludos");
 
         unreadMailStack = new Stack<Mail>();
         readMails = new LinkedList<Mail>();

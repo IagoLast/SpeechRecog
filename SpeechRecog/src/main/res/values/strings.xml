@@ -12,8 +12,8 @@
     <string name="checking_credentials">Checking credentials...</string>
 
     <!-- Command Keywords -->
-    <string name="Speech_Keyword_Exit">salir|atrás</string>
-    <string name="Speech_Keyword_Exit_Mail_Manager">salir del gestor de correo|salir del gestor de mail|salir del gestor </string>
+    <string name="Speech_Keyword_Exit">atras|atrás</string>
+    <string name="Speech_Keyword_Exit_Mail_Manager">salir </string>
     <string name="Speech_Keyword_No">No|no|negativo</string>
     <string name="Speech_Keyword_Yes">Si|Sí|si|afirmativo</string>
     <string name="Speech_Keyword_Check_Mail">comprobar correo|comprobar mail</string>
@@ -21,8 +21,8 @@
     <string name="Speech_Keyword_Help_Request">ayuda|ayúdame</string>
     <string name="Speech_Keyword_ReadMail">leer correo|leer mail</string>
     <string name="Speech_Keyword_ReRead">releer|volver a leer</string>
-    <string name="Speech_Keyword_Stop_Writing_Mail">finalizar respuesta|finalizar correo|finalizar mail</string>
-    <string name="Speech_Keyword_Delete_CurrentBody">borrar respuesta|eliminar respuesta|eliminar correo|borrar correo</string>
+    <string name="Speech_Keyword_Stop_Writing_Mail">envía|enviar</string>
+    <string name="Speech_Keyword_Delete_CurrentBody">corregir</string>
     <string name="Speech_Keyword_Read_CurrentBody">leer respuesta|leer correo|leer mail</string>
 
 
@@ -46,39 +46,40 @@
 
     <!-- MailVT InitialState Introduction -->
     <string name="Speech_Introduction_Welcome_Mail_Manager">Bienvenido al gestor de correo.</string>
-    <string name="Speech_Introduction_General_Command_Help">En cualquier momento puedes solicitar ayuda diciendo ayuda</string>
-    <string name="Speech_Introduction_General_Command_Leave_Manager">Para salir dí: salir del gestor de correo.</string>
+    <string name="Speech_Introduction_General_Command_Help">Para solicitar ayuda di ayuda</string>
+
 
     <!-- MailVT InitialState Help Responses -->
-    <string name="Speech_Help_Response_CheckMail_Command">Si quieres comprobar si hay correos nuevos, dí: comprobar correo</string>
-    <string name="Speech_Help_Response_ReadMail_Command">Si quieres leer tus mails, dí: leer correo</string>
+    <string name="Speech_Help_Response_CheckMail_Command">Para comprobar si hay correos nuevos, dí: comprobar correo</string>
+    <string name="Speech_Help_Response_ReadMail_Command">Para leer tus mails, dí: leer correo</string>
+    <string name="Speech_Help_Response_Get_Out">Para salir dí: salir</string>
 
     <!-- MailVT StateOne Help Responses -->
-    <string name="Speech_Help_Response_CheckMail_Afirmative">Si quieres que saber de quien, dí: Sí o Afirmativo</string>
-    <string name="Speech_Help_Response_CheckMail_Negative">Si no, dí: No o Negativo</string>
+    <string name="Speech_Help_Response_CheckMail_Afirmative">Para saber de quien, dí: Sí</string>
+    <string name="Speech_Help_Response_CheckMail_Negative">Si no, dí: No</string>
 
     <!-- MailVT StateTwo Help Responses -->
-    <string name="Speech_Help_Response_ReadUnreadMail_Afirmative">Si quieres que lea el correo, dí: Sí o Afirmativo</string>
-    <string name="Speech_Help_Response_ReadUnreadMail_Negative">Si no, dí: No o Negativo</string>
-    <string name="Speech_Help_Response_ReadUnreadMail_Exit">Para salir, dí Salir</string>
+    <string name="Speech_Help_Response_ReadUnreadMail_Afirmative">Para que lea el correo, dí: Sí</string>
+    <string name="Speech_Help_Response_ReadUnreadMail_Negative">Si no, dí: No</string>
+    <string name="Speech_Help_Response_ReadUnreadMail_Exit">Para salir, dí atrás</string>
 
     <!-- MailVT StateThree Help Responses -->
-    <string name="Speech_Help_Response_ResponseMail_Afirmative">Si quieres responder al correo que acabo de leer, dí: Sí o Afirmativo</string>
+    <string name="Speech_Help_Response_ResponseMail_Afirmative">Para responder al correo que acabo de leer, dí: Sí</string>
     <string name="Speech_Help_Response_ResponseMail_Negative">Si no, dí: No o Negativo</string>
-    <string name="Speech_Help_Response_ReReadMail">En caso de que quieras que lo lea de nuevo dí: Releer</string>
+    <string name="Speech_Help_Response_ReReadMail">Para que lo lea de nuevo dí: Releer</string>
 
     <!-- MailVtStateFour Help Init -->
-    <string name="Speech_ResponseMail_Introduction">Cada vez que registre una frase como parte de la respuesta sonará un pitido</string>
-    <string name="Speech_ResponseMail_End_Mail_Info">Para parar de escribir el correo, dí finalizar respuesta</string>
+    <string name="Speech_ResponseMail_Introduction">Estoy escuchando.</string>
+    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes finalizar respuesta</string>
 
     <!-- MailVtStateFour Help Responses -->
-    <string name="Speech_Help_Response_StopMail">Para terminar el correo, dí: finalizar respuesta</string>
-    <string name="Speech_Help_Response_ReadCurrentBody">Si quieres leer lo que has escrito hasta ahora, dí: leer respuesta</string>
-    <string name="Speech_Help_Response_DeleteCurrentBody">Si quieres eliminar lo que has escrito hasta ahora, dí: borrar respuesta</string>
+    <string name="Speech_Help_Response_StopMail">Para terminar el correo, dí: envíar</string>
+    <string name="Speech_Help_Response_ReadCurrentBody">Para leer lo que has escrito hasta ahora, dí: leer respuesta</string>
+    <string name="Speech_Help_Response_DeleteCurrentBody">Para eliminar lo que has escrito hasta ahora, dí: corregir</string>
 
     <!-- MailVtStateFive Help Responses -->
-    <string name="Speech_Help_Response_ReadMail_Afirmative">Si quieres que lea el correo, dí: Sí o Afirmativo</string>
-    <string name="Speech_Help_Response_ReadMail_Negative">Si no, dí: No o Negativo</string>
-    <string name="Speech_Help_Response_Exit_State">Si quieres dejar de leer correos, dí: salir</string>
+    <string name="Speech_Help_Response_ReadMail_Afirmative">Para que lea el correo, dí: Sí</string>
+    <string name="Speech_Help_Response_ReadMail_Negative">Si no, dí: No</string>
+    <string name="Speech_Help_Response_Exit_State">Para dejar de leer correos, dí: atrás</string>
 
 </resources>
