@@ -47,6 +47,7 @@ public class MailVtInitialState implements MailVoicetivityState {
     public void onHelpRequest() {
         voicetivity.speak(res.getString(R.string.Speech_Help_Response_CheckMail_Command), false);
         voicetivity.speak(res.getString(R.string.Speech_Help_Response_ReadMail_Command), false);
+        voicetivity.speak(res.getString(R.string.Speech_Help_Response_Get_Out),false);
 
 
     }
