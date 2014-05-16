@@ -6,6 +6,8 @@ import org.apache.commons.fileupload.util.mime.MimeUtility;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.imap.IMAPClient;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -95,6 +97,8 @@ class IMAPListener implements ProtocolCommandListener {
     private String extractMailBody(String message) {
         String[] lines = message.split("\n");
         int l = lines.length - 1;
+        String body;
+
         StringBuilder builder = new StringBuilder(l - 1);
         for (int i = 1; i < l; i++) {
             if (i > 1) {
@@ -103,11 +107,20 @@ class IMAPListener implements ProtocolCommandListener {
             builder.append(lines[i]);
         }
         try {
-            return MimeUtility.decodeText(builder.toString());
+            body = MimeUtility.decodeText(builder.toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return builder.toString();
+            body = builder.toString();
         }
+
+        return extractHTMLText(body);
+    }
+
+    private String extractHTMLText(String html) {
+        HtmlCleaner cleaner = new HtmlCleaner();
+        TagNode node = cleaner.clean(html);
+
+        return String.valueOf(node.getText());
     }
 
 
