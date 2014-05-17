@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPMailClient;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.mock.MailClientMock;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
