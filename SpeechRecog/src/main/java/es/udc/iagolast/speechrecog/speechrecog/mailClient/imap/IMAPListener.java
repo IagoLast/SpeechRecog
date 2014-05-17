@@ -104,7 +104,7 @@ class IMAPListener implements ProtocolCommandListener {
 
     private String extractMailBody(String message) {
         String[] lines = message.split("\n");
-        int l = lines.length - 1;
+        int l = lines.length - 2;
         String body;
 
         StringBuilder builder = new StringBuilder(l - 1);
@@ -114,14 +114,15 @@ class IMAPListener implements ProtocolCommandListener {
             }
             builder.append(lines[i]);
         }
+
+        body = extractHTMLText(builder.toString());
         try {
-            body = MimeUtility.decodeText(builder.toString());
+            body = MimeUtility.decodeText(body);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            body = builder.toString();
         }
 
-        return extractHTMLText(body);
+        return body;
     }
 
     private String extractHTMLText(String html) {
