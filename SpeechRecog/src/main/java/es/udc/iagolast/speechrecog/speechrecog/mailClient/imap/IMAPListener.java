@@ -1,5 +1,6 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import javax.mail.internet.MimeUtility;
@@ -14,15 +15,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
+
 class IMAPListener implements ProtocolCommandListener {
 
+    Resources res;
     IMAPMailClient iface;
     IMAPClient client;
     private Map<Integer, IMAPMail> mailsToComplete;
 
-    public IMAPListener(IMAPMailClient iface, IMAPClient client) {
+    public IMAPListener(IMAPMailClient iface, IMAPClient client, Resources res) {
         this.iface = iface;
         this.client = client;
+        this.res = res;
         this.mailsToComplete = new HashMap<Integer, IMAPMail>();
     }
 
@@ -56,55 +61,13 @@ class IMAPListener implements ProtocolCommandListener {
     }
 
 
-    private String extractFromField(String message) {
+    private String extractField(String message, String defaultValue) {
         String text = message;
         try{
             text = text.split("\n")[1].split(":", 2)[1];
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
-            return "Sin remitente"; /// @TODO: Extract string
-        }
-        text = text.trim();
-        if (text.startsWith("\"") && text.endsWith("\"")){
-            text = text.substring(1, text.length() - 1);
-        }
-        try {
-            text = MimeUtility.decodeText(text);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return text;
-    }
-
-
-    private String extractToField(String message) {
-        String text = message;
-        try{
-            text = text.split("\n")[1].split(":", 2)[1];
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return "Sin receptor"; /// @TODO: Extract string
-        }
-        text = text.trim();
-        if (text.startsWith("\"") && text.endsWith("\"")){
-            text = text.substring(1, text.length() - 1);
-        }
-        try {
-            text = MimeUtility.decodeText(text);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return text;
-    }
-
-
-    private String extractSubjectField(String message) {
-        String text = message;
-        try{
-            text = text.split("\n")[1].split(":", 2)[1];
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return "Sin asunto"; /// @TODO: Extract string
+            return defaultValue;
         }
         text = text.trim();
         if (text.startsWith("\"") && text.endsWith("\"")){
@@ -179,11 +142,11 @@ class IMAPListener implements ProtocolCommandListener {
         }
 
         if (message.split("\n")[0].toUpperCase().contains("FROM")) {
-            mail.setFrom(extractFromField(message));
+            mail.setFrom(extractField(message, res.getString(R.string.no_from_value)));
         } else if (message.split("\n")[0].toUpperCase().contains("TO")) {
-                mail.setTo(extractToField(message));
+                mail.setTo(extractField(message, res.getString(R.string.no_to_value)));
         } else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")) {
-            mail.setSubject(extractSubjectField(message));
+            mail.setSubject(extractField(message,res.getString(R.string.no_subject_value)));
         } else if (message.split("\n")[0].toUpperCase().contains("TEXT")) {
             mail.setBody(extractMailBody(message));
         } else if (message.split("\n")[0].toUpperCase().contains("FLAGS")) {

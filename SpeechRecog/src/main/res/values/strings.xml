@@ -81,5 +81,8 @@
     <string name="Speech_Help_Response_ReadMail_Afirmative">Para que lea el correo, dí: Sí</string>
     <string name="Speech_Help_Response_ReadMail_Negative">Si no, dí: No</string>
     <string name="Speech_Help_Response_Exit_State">Para dejar de leer correos, dí: atrás</string>
+    <string name="no_from_value">Sin emisor</string>
+    <string name="no_to_value">Sin receptor</string>
+    <string name="no_subject_value">Sin asunto</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -41,14 +42,17 @@ public class IMAPMailClient implements MailClient {
         String host;
         int port;
         IMAPMailClient iface;
+        Resources res;
 
         public IMAPClientService(String userName, String password,
-                                 String host, int port, IMAPMailClient iface) {
+                                 String host, int port, IMAPMailClient iface,
+                                 Resources res) {
             this.userName = userName;
             this.password = password;
             this.host = host;
             this.port = port;
             this.iface = iface;
+            this.res = res;
         }
 
 
@@ -59,7 +63,7 @@ public class IMAPMailClient implements MailClient {
             client.setDefaultTimeout(TIMEOUT);
             client.setConnectTimeout(TIMEOUT);
             Log.d("IMAPClient/SpeechRecog", "Client AddListener");
-            client.addProtocolCommandListener(new IMAPListener(iface, client));
+            client.addProtocolCommandListener(new IMAPListener(iface, client, res));
             try {
                 Log.d("IMAPClient/SpeechRecog", "Client connecting");
                 client.connect(host, port);
@@ -83,11 +87,11 @@ public class IMAPMailClient implements MailClient {
         }
     }
 
-    public IMAPMailClient(String userName, String password, String host, int port) {
+    public IMAPMailClient(String userName, String password, String host, int port, Resources res) {
         this.userName = userName;
         this.password = password;
 
-        clientService = new IMAPClientService(userName, password, host, port, this);
+        clientService = new IMAPClientService(userName, password, host, port, this, res);
         clientService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
