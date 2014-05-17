@@ -13,7 +13,7 @@ import org.apache.commons.net.imap.IMAPSClient;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.mail.internet.AddressException;
@@ -25,13 +25,13 @@ import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
 public class IMAPMailClient implements MailClient {
 
     IMAPClientService clientService;
-    List<IMAPMail> mailList = new ArrayList<IMAPMail>();
+    LinkedList<IMAPMail> mailList = new LinkedList<IMAPMail>();
     int index = 0;
     final static private int TIMEOUT = 60000;
     private String userName, password;
 
     public void addMail(IMAPMail mail) {
-        mailList.add(mail);
+        mailList.addFirst(mail);
     }
 
     private class IMAPClientService extends AsyncTask<Void, Void, Void> {
