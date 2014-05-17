@@ -70,7 +70,7 @@
 
     <!-- MailVtStateFour Help Init -->
     <string name="Speech_ResponseMail_Introduction">Estoy escuchando.</string>
-    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes finalizar respuesta</string>
+    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes dí: enviar</string>
 
     <!-- MailVtStateFour Help Responses -->
     <string name="Speech_Help_Response_StopMail">Para terminar el correo, dí: envíar</string>
@@ -81,5 +81,8 @@
     <string name="Speech_Help_Response_ReadMail_Afirmative">Para que lea el correo, dí: Sí</string>
     <string name="Speech_Help_Response_ReadMail_Negative">Si no, dí: No</string>
     <string name="Speech_Help_Response_Exit_State">Para dejar de leer correos, dí: atrás</string>
+    <string name="no_from_value">Sin emisor</string>
+    <string name="no_to_value">Sin receptor</string>
+    <string name="no_subject_value">Sin asunto</string>
 
 </resources>

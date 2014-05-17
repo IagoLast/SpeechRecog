@@ -1,15 +1,23 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.SimpleEmail;
 import org.apache.commons.net.imap.IMAPClient;
 import org.apache.commons.net.imap.IMAPSClient;
 
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
@@ -20,6 +28,7 @@ public class IMAPMailClient implements MailClient {
     List<IMAPMail> mailList = new ArrayList<IMAPMail>();
     int index = 0;
     final static private int TIMEOUT = 60000;
+    private String userName, password;
 
     public void addMail(IMAPMail mail) {
         mailList.add(mail);
@@ -33,14 +42,17 @@ public class IMAPMailClient implements MailClient {
         String host;
         int port;
         IMAPMailClient iface;
+        Resources res;
 
         public IMAPClientService(String userName, String password,
-                                 String host, int port, IMAPMailClient iface) {
+                                 String host, int port, IMAPMailClient iface,
+                                 Resources res) {
             this.userName = userName;
             this.password = password;
             this.host = host;
             this.port = port;
             this.iface = iface;
+            this.res = res;
         }
 
 
@@ -51,7 +63,7 @@ public class IMAPMailClient implements MailClient {
             client.setDefaultTimeout(TIMEOUT);
             client.setConnectTimeout(TIMEOUT);
             Log.d("IMAPClient/SpeechRecog", "Client AddListener");
-            client.addProtocolCommandListener(new IMAPListener(iface, client));
+            client.addProtocolCommandListener(new IMAPListener(iface, client, res));
             try {
                 Log.d("IMAPClient/SpeechRecog", "Client connecting");
                 client.connect(host, port);
@@ -63,7 +75,7 @@ public class IMAPMailClient implements MailClient {
                 Log.d("IMAPClient/SpeechRecog", "Client selects");
                 client.select("inbox");
                 Log.d("IMAPClient/SpeechRecog", "Client searches");
-                client.search("UNSEEN");
+                client.search("UNANSWERED");
                 Log.d("IMAPClient/SpeechRecog", "Client expects");
 
             } catch (IOException e) {
@@ -75,8 +87,11 @@ public class IMAPMailClient implements MailClient {
         }
     }
 
-    public IMAPMailClient(String userName, String password, String host, int port) {
-        clientService = new IMAPClientService(userName, password, host, port, this);
+    public IMAPMailClient(String userName, String password, String host, int port, Resources res) {
+        this.userName = userName;
+        this.password = password;
+
+        clientService = new IMAPClientService(userName, password, host, port, this, res);
         clientService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -161,8 +176,50 @@ public class IMAPMailClient implements MailClient {
 
     @Override
     public boolean sendMail(Mail mail) {
-        return (Math.random() > 0.5);
-        //TODO Used for mock
+        ArrayList<InternetAddress> recv = new ArrayList<InternetAddress>(1);
+        final String destination = mail.getTo();
+
+        // Fill email data
+        SimpleEmail email = new SimpleEmail();
+        try {
+            recv.add(new InternetAddress(destination));
+            email.setTo(recv);
+
+            email.setSubject(mail.getSubject());
+            email.setFrom(mail.getFrom());
+            email.setMsg(mail.getBody());
+        } catch (AddressException e) {
+            e.printStackTrace();
+            return false;
+        } catch (EmailException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Set Server data
+        email.setAuthentication(userName, password);
+        email.setHostName("smtp.gmail.com");
+        email.setSSLOnConnect(true);
+        email.setSSLCheckServerIdentity(true);
+
+        final Email definitiveMail = email;
+
+        // Send mail on a separate thread
+        new AsyncTask<Void, Void, Void>(){
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    definitiveMail.send();
+                } catch (EmailException e) {
+                    e.printStackTrace();
+                    Log.e("IMAPMailClient", "Error sending mail to " + destination);
+                }
+
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        return true;
     }
 
 }

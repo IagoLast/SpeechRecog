@@ -5,11 +5,6 @@ import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 public class IMAPMail extends Mail {
     private Boolean read;
 
-    public IMAPMail(String subject, String from, String body, boolean read) {
-        super(subject, from, null, body);
-        this.read = read;
-    }
-
     public IMAPMail() {
         super(null, null, null, null);
     }
