@@ -70,7 +70,7 @@
 
     <!-- MailVtStateFour Help Init -->
     <string name="Speech_ResponseMail_Introduction">Estoy escuchando.</string>
-    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes finalizar respuesta</string>
+    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes dí: enviar</string>
 
     <!-- MailVtStateFour Help Responses -->
     <string name="Speech_Help_Response_StopMail">Para terminar el correo, dí: envíar</string>
