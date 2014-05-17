@@ -23,7 +23,9 @@ public class VtMail implements Voicetivity {
         SharedPreferences sharedPreferences = service.getSharedPreferences("ziriPrefs", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("mail", "");
         String password = sharedPreferences.getString("password", "");
-        mailClient = new IMAPMailClient(username, password, "imap.gmail.com", 993, service.getResources());
+        //mailClient = new IMAPMailClient(username, password, "imap.gmail.com", 993, service.getResources());
+        //TODO: Fix mail Client.
+        mailClient = new MailClientMock();
         state = new MailVtInitialState(this);
 
     }

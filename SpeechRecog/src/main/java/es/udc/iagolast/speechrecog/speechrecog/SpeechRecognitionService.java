@@ -162,7 +162,10 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     /**
      * If an error happens, just restart and listen again.
      */
-    public void onError() {
+    public void onError(int error) {
+        if (error == 7) {
+            playTone(TONE_ERROR);
+        }
         waitAndRun();
     }
 

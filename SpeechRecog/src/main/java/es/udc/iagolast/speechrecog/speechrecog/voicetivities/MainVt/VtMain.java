@@ -1,6 +1,7 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt;
 
 import android.app.SearchManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.StrictMode;
 import android.provider.AlarmClock;
@@ -60,6 +61,19 @@ public class VtMain implements Voicetivity {
         } else if (speech.matches("tiempo")) {
             service.speak("¿que ciudad?");
             service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Weather"));
+        } else if (speech.matches("encender Bluetooth|encender blutud|encender bluetooth|encender blutooth")) {
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (!mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.enable();
+            }
+            service.speak("Encendido.");
+        } else if (speech.matches("apagar Bluetooth|apagar blutud|apagar bluetooth|apagar blutooth")) {
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.disable();
+            }
+            service.speak("Apagado.");
+
         } else if (speech.matches("qué tiempo hace") || speech.matches("dime qué tiempo hace")) {
             try {
                 // Enable Network on Main Thread

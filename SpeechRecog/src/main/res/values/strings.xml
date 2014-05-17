@@ -15,7 +15,7 @@
     <string name="Speech_Keyword_Exit">atras|atrás</string>
     <string name="Speech_Keyword_Exit_Mail_Manager">salir </string>
     <string name="Speech_Keyword_No">No|no|negativo</string>
-    <string name="Speech_Keyword_Yes">Si|Sí|si|afirmativo</string>
+    <string name="Speech_Keyword_Yes">Si|Sí|si|afirmativo|chip|jeep|shit|CEIP|CIF|sé|sin|sing|cit</string>
     <string name="Speech_Keyword_Check_Mail">comprobar correo|comprobar mail</string>
     <string name="Speech_Keyword_Write_Mail">escribir correo|escribir mail</string>
     <string name="Speech_Keyword_Help_Request">ayuda|ayúdame</string>
@@ -69,8 +69,8 @@
     <string name="Speech_Help_Response_ReReadMail">Para que lo lea de nuevo dí: Releer</string>
 
     <!-- MailVtStateFour Help Init -->
-    <string name="Speech_ResponseMail_Introduction">Estoy escuchando.</string>
-    <string name="Speech_ResponseMail_End_Mail_Info">Cuando acabes dí: enviar</string>
+    <string name="Speech_ResponseMail_Introduction">Dícta el mensaje.</string>
+    <string name="Speech_ResponseMail_End_Mail_Info">Puedes pedir ayuda cuando quieras.</string>
 
     <!-- MailVtStateFour Help Responses -->
     <string name="Speech_Help_Response_StopMail">Para terminar el correo, dí: envíar</string>

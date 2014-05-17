@@ -45,7 +45,7 @@ public class Listener implements RecognitionListener {
      */
     public void onError(int error) {
         Log.d("Listener", "Error " + error);
-        speechRecognitionService.onError();
+        speechRecognitionService.onError(error);
     }
 
 
