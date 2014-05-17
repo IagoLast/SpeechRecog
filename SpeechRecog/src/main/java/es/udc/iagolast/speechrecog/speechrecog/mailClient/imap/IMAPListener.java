@@ -46,6 +46,7 @@ class IMAPListener implements ProtocolCommandListener {
                 client.fetch(uid, "FLAGS");
                 client.fetch(uid, "BODY.PEEK[HEADER.FIELDS (Subject)]");
                 client.fetch(uid, "BODY.PEEK[HEADER.FIELDS (From)]");
+                client.fetch(uid, "BODY.PEEK[HEADER.FIELDS (To)]");
                 client.fetch(uid, "BODY.PEEK[TEXT]");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -62,6 +63,27 @@ class IMAPListener implements ProtocolCommandListener {
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return "Sin remitente"; /// @TODO: Extract string
+        }
+        text = text.trim();
+        if (text.startsWith("\"") && text.endsWith("\"")){
+            text = text.substring(1, text.length() - 1);
+        }
+        try {
+            text = MimeUtility.decodeText(text);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return text;
+    }
+
+
+    private String extractToField(String message) {
+        String text = message;
+        try{
+            text = text.split("\n")[1].split(":", 2)[1];
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return "Sin receptor"; /// @TODO: Extract string
         }
         text = text.trim();
         if (text.startsWith("\"") && text.endsWith("\"")){
@@ -158,6 +180,8 @@ class IMAPListener implements ProtocolCommandListener {
 
         if (message.split("\n")[0].toUpperCase().contains("FROM")) {
             mail.setFrom(extractFromField(message));
+        } else if (message.split("\n")[0].toUpperCase().contains("TO")) {
+                mail.setTo(extractToField(message));
         } else if (message.split("\n")[0].toUpperCase().contains("SUBJECT")) {
             mail.setSubject(extractSubjectField(message));
         } else if (message.split("\n")[0].toUpperCase().contains("TEXT")) {
