@@ -64,7 +64,7 @@ class IMAPListener implements ProtocolCommandListener {
             return "Sin remitente"; /// @TODO: Extract string
         }
         text = text.trim();
-        if (text.startsWith("\"") && text.endsWith("\""));{
+        if (text.startsWith("\"") && text.endsWith("\"")){
             text = text.substring(1, text.length() - 1);
         }
         try {
@@ -85,7 +85,7 @@ class IMAPListener implements ProtocolCommandListener {
             return "Sin asunto"; /// @TODO: Extract string
         }
         text = text.trim();
-        if (text.startsWith("\"") && text.endsWith("\""));{
+        if (text.startsWith("\"") && text.endsWith("\"")){
             text = text.substring(1, text.length() - 1);
         }
         try {
