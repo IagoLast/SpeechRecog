@@ -42,6 +42,7 @@
     <string name="Speech_Response_No_More_Mail">Ya has recorrido todos los mails</string>
     <string name="Speech_Response_No_Mail_Downloaded">No hay ningún mail descargado</string>
     <string name="Speech_Response_Exiting">Volviendo al principio del gestor</string>
+    <string name="Speech_Response_Reading_Mail">¿Quieres responder con lo siguiente?</string>
 
 
     <!-- MailVT InitialState Introduction -->
@@ -84,5 +85,10 @@
     <string name="no_from_value">Sin emisor</string>
     <string name="no_to_value">Sin receptor</string>
     <string name="no_subject_value">Sin asunto</string>
+
+    <!-- MailVtStateSix Help Responses -->
+    <string name="Speech_Help_Response_Send_Mail">Para enviar el correo di sí</string>
+    <string name="Speech_Help_Response_Rewrite">Si no dí no</string>
+
 
 </resources>

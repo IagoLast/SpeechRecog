@@ -15,10 +15,13 @@ public class MailVtStateFour implements MailVoicetivityState {
     private final String REPLY_STRING = "RE:";
 
 
-    public MailVtStateFour(VtMail voicetivity, Mail mail) {
+    public MailVtStateFour(VtMail voicetivity, Mail mail, boolean fromStateThree) {
         this.voicetivity = voicetivity;
-        this.mail = new Mail(REPLY_STRING + mail.getSubject(), mail.getTo(), mail.getFrom(), "");
         res = voicetivity.service.getResources();
+
+        if (fromStateThree) {
+            this.mail = new Mail(REPLY_STRING + mail.getSubject(), mail.getTo(), mail.getFrom(), "");
+        } else this.mail = mail;
         mailBody = new StringBuilder();
         this.init();
 
@@ -29,15 +32,8 @@ public class MailVtStateFour implements MailVoicetivityState {
 
         if (speech.matches(res.getString(R.string.Speech_Keyword_Stop_Writing_Mail))) {
             mail.setBody(mailBody.toString());
-            if (voicetivity.mailClient.sendMail(mail)) {
-                voicetivity.speak(res.getString(R.string.Speech_Response_Mail_Sent_OK), true);
 
-            } else {
-                voicetivity.speak(res.getString(R.string.Speech_Response_Mail_Sent_Fail), true);
-
-            }
-
-            voicetivity.state = new MailVtStateTwo(voicetivity);
+            voicetivity.state = new MailVtStateSix(voicetivity, mail);
 
         } else if (speech.matches(res.getString(R.string.Speech_Keyword_Read_CurrentBody))) {
             voicetivity.speak(mailBody.toString(), false);

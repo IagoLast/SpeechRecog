@@ -27,7 +27,7 @@ public class MailVtStateThree implements MailVoicetivityState {
         Log.d("State 3", "IN");
 
         if (speech.matches(res.getString(R.string.Speech_Keyword_Yes))) {
-            voicetivity.state = new MailVtStateFour(voicetivity, mail);
+            voicetivity.state = new MailVtStateFour(voicetivity, mail, true);
 
         } else if (speech.matches(res.getString(R.string.Speech_Keyword_No))) {
             voicetivity.state = new MailVtStateTwo(voicetivity);
