@@ -75,7 +75,7 @@ public class IMAPMailClient implements MailClient {
                 Log.d("IMAPClient/SpeechRecog", "Client selects");
                 client.select("inbox");
                 Log.d("IMAPClient/SpeechRecog", "Client searches");
-                client.search("UNSEEN");
+                client.search("UNANSWERED");
                 Log.d("IMAPClient/SpeechRecog", "Client expects");
 
             } catch (IOException e) {
