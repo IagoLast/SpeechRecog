@@ -126,7 +126,7 @@ public class IMAPMailClient implements MailClient {
         } catch (IndexOutOfBoundsException e){
             currentMailListIndex = 0;
 
-            // Qué hacer cuando no hay resultados?
+            imapClientService.refresh();
             return null;
         }
     }
@@ -136,6 +136,10 @@ public class IMAPMailClient implements MailClient {
         for (IMAPMail mail : imapClientService.getMailList()){
             if (!mail.getRead()){
                 mail.setRead(true);
+
+                if (!hasUnreadMail()){
+                    imapClientService.refresh();
+                }
                 return mail;
             }
         }

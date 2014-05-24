@@ -52,13 +52,13 @@ public class IMAPClientService extends Service {
             }
         }
 
-        queryMailServer();
+        refresh();
         return START_STICKY;
     }
 
 
     // Even on services Network operations have to be done inside a AsyncTask
-    private void queryMailServer(){
+    public void refresh(){
         new IMAPAsyncQuery(username, password){
             @Override
             public void onPostExecute(List<IMAPMail> result){

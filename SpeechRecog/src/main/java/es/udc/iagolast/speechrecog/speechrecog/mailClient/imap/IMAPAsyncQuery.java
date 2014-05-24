@@ -109,6 +109,7 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
         // Extract headers
         IMAPMail mail = new IMAPMail();
         mail.setRead(msg.isSet(Flags.Flag.SEEN));
+        msg.setFlag(Flags.Flag.SEEN, true);
         try {
             mail.setFrom(MimeUtility.decodeText(msg.getFrom()[0].toString()));
             mail.setTo(MimeUtility.decodeText(msg.getReplyTo()[0].toString()));
@@ -154,7 +155,7 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
 
             // Navigation
             Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
+            inbox.open(Folder.READ_WRITE); // Write to mark messages as read
 
             // Mail processing
             return processMessages(inbox.getMessages());
