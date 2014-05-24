@@ -61,28 +61,7 @@ public class SettingsActivity extends Activity {
         final String username = editTextMail.getText().toString();
         final String password = editTextPassword.getText().toString();
 
-        butSavePrefs.setText(R.string.checking_credentials);
-        new AsyncTask<Void, Void, Boolean>(){
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                return IMAPMailClient.checkCredentials(username, password,
-                                                       "imap.gmail.com", 993);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean validCredentials){
-                butSavePrefs.setText(getString(R.string.save_preferences));
-                if (validCredentials == null) {
-                    Log.e("SpeechRecog/SettingsActivity", "NULL can't be returned here!");
-                } else if (validCredentials){
-                    savePreferences(username, password);
-                } else {
-                    Toast.makeText(SettingsActivity.this, getString(R.string.invalid_user_pass),
-                                   Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
+        savePreferences(username, password);
     }
 
 
