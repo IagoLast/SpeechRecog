@@ -3,29 +3,22 @@ package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.sun.mail.imap.IMAPInputStream;
-import com.sun.mail.util.QPDecoderStream;
-
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
-import javax.mail.Address;
-import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -55,55 +48,57 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
     }
 
 
-    private static String cleanStream(InputStream stream){
-        return cleanString(readFullStream(stream));
+    private static String[] splitMultipart(String raw) {
+        String separator = raw.split("\n")[0].trim();
+        return raw.substring(separator.length() + 1).split(Pattern.quote(separator));
     }
 
 
-    private static String cleanString(String input) {
-        Log.d(TAG, "String: " + input);
+    private static String cleanPart(String raw){
+        StringBuilder builder = new StringBuilder();
+        boolean headersRead = false;
+        for (String line : raw.trim().split("\n")){
+            line = line.trim();
+            if (line.length() == 0){
+                headersRead = true;
+            }
+            if (line.equals("--")){ // Signature separator
+                break;
+            }
 
-        String [] chunks = input.split("On ");
-        return chunks[0];
+            String lowLine = line.toLowerCase();
+            boolean headerLine = lowLine.startsWith("content-") || lowLine.startsWith("charset=");
 
-        //return input;
+            if (headersRead || !(headerLine)){
+                headersRead = true;
+                builder.append(line);
+                builder.append("\n");
+                builder.append("\n");
+            }
+        }
+
+        return cleanHTML(builder.toString());
     }
 
 
-    private String decodeContent(Part p) throws MessagingException, IOException {
-        // Text, just clean it
-        if (p.getContentType().startsWith("text/")){
-            try {
-                return cleanString((String) p.getContent());
-            } catch (ClassCastException e){
-                return cleanStream((InputStream) p.getContent());
-            }
+    private static String decodeContent(Part p) throws MessagingException, IOException {
+        String raw;
+        try {
+            raw = (String) p.getContent();
+        } catch (ClassCastException e){
+            raw = readFullStream((InputStream) p.getContent());
+        }
+
+        if (p.isMimeType("text/html")){
+            return cleanHTML(raw);
+        } else if (p.isMimeType("text/*")){
+            return raw;
+        }
 
 
-        // Multiparted
-        } else if (p.getContentType().startsWith("multipart/")) {
-            // prefer plain text > html > unknown type
-            Multipart mp = (Multipart) p.getContent();
-
-            String text = null;
-            for (int i = 0; i < mp.getCount(); i++) {
-                Part bp = mp.getBodyPart(i);
-                if (bp.isMimeType("text/plain")) {
-                    String s = decodeContent(bp);
-                    if (s != null){
-                        return s;
-                    }
-                } else if (bp.isMimeType("text/html")) {
-                    text = decodeContent(bp);
-
-                } else {
-                    if (text == null){
-                        text = decodeContent(bp);
-                    }
-                }
-            }
-            return text;
-
+        String[] parts = splitMultipart(raw);
+        for (String rawPart : parts){
+            return cleanPart(rawPart);
         }
 
         return null;
@@ -167,7 +162,6 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
 
         } catch (MessagingException e) {
             e.printStackTrace();
-            System.err.println("IMAP-- NULL, error, agh!");
             return null;
         }
     }
