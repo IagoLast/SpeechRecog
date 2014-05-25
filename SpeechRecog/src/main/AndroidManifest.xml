@@ -31,6 +31,10 @@
             android:enabled="true"
             android:exported="true" />
 
+        <service
+            android:name="es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPClientService"
+            android:enabled="true" />
+
         <activity
             android:name="es.udc.iagolast.speechrecog.speechrecog.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>

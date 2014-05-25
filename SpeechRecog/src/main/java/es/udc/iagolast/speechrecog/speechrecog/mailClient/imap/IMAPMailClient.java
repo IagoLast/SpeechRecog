@@ -1,17 +1,17 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
-import android.content.res.Resources;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.IBinder;
 import android.util.Log;
 
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.apache.commons.net.imap.IMAPClient;
-import org.apache.commons.net.imap.IMAPSClient;
 
-import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,112 +19,65 @@ import java.util.List;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class IMAPMailClient implements MailClient {
 
-    IMAPClientService clientService;
-    LinkedList<IMAPMail> mailList = new LinkedList<IMAPMail>();
-    int index = 0;
-    final static private int TIMEOUT = 60000;
-    private String userName, password;
+    private String username, password;
+    private Context context;
+    private Intent serviceIntent;
+    private IMAPClientService imapClientService;
+    private boolean bound = false;
 
-    public void addMail(IMAPMail mail) {
-        mailList.addFirst(mail);
+    private List<IMAPMail> currentMailList;
+    private int currentMailListIndex = 0;
+
+
+    private void bindService() {
+        serviceIntent = new Intent(context, IMAPClientService.class);
+        serviceIntent.putExtra(IMAPClientService.USERNAME, username);
+        serviceIntent.putExtra(IMAPClientService.PASSWORD, password);
+        context.startService(serviceIntent);
+        Log.d("SpeechRecog/IMAPMailClient", "binding service");
+        context.bindService(serviceIntent, clientServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.d("SpeechRecog/IMAPMailClient", "service bound");
     }
 
-    private class IMAPClientService extends AsyncTask<Void, Void, Void> {
 
-        IMAPClient client;
-        String userName;
-        String password;
-        String host;
-        int port;
-        IMAPMailClient iface;
-        Resources res;
-
-        public IMAPClientService(String userName, String password,
-                                 String host, int port, IMAPMailClient iface,
-                                 Resources res) {
-            this.userName = userName;
-            this.password = password;
-            this.host = host;
-            this.port = port;
-            this.iface = iface;
-            this.res = res;
+    private ServiceConnection clientServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder bind) {
+            Log.d("SpeechRecog/IMAPMailClient", "connection!");
+            IMAPClientService.SimpleBinder sBinder = (IMAPClientService.SimpleBinder) bind;
+            imapClientService = sBinder.getService();
+            bound = true;
+            Log.d("SpeechRecog/IMAPMailClient", "bound = true");
         }
-
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            Log.d("IMAPClient/SpeechRecog", "Connecting client");
-            client = new IMAPSClient("TLS", true);
-            client.setDefaultTimeout(TIMEOUT);
-            client.setConnectTimeout(TIMEOUT);
-            Log.d("IMAPClient/SpeechRecog", "Client AddListener");
-            client.addProtocolCommandListener(new IMAPListener(iface, client, res));
-            try {
-                Log.d("IMAPClient/SpeechRecog", "Client connecting");
-                client.connect(host, port);
-                Log.d("IMAPClient/SpeechRecog", "Client connected");
-                if (!client.login(userName, password)) {
-                    client.disconnect();
-                    return null;
-                }
-                Log.d("IMAPClient/SpeechRecog", "Client selects");
-                client.select("inbox");
-                Log.d("IMAPClient/SpeechRecog", "Client searches");
-                client.search("UNANSWERED");
-                Log.d("IMAPClient/SpeechRecog", "Client expects");
-
-            } catch (IOException e) {
-                Log.d("IMAPClient/SpeechRecog", "Client crashed");
-                e.printStackTrace();
-            }
-
-            return null;
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
         }
-    }
+    };
 
-    public IMAPMailClient(String userName, String password, String host, int port, Resources res) {
-        this.userName = userName;
+
+    public IMAPMailClient(String username, String password, Context context) {
+        this.username = username;
         this.password = password;
+        this.context = context;
 
-        clientService = new IMAPClientService(userName, password, host, port, this, res);
-        clientService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-
-    /// @NOTE Don't call from UI thread
-    public static boolean checkCredentials(String userName, String password,
-                                           String host, int port) {
-
-        boolean validCredentials = false;
-        IMAPSClient client = new IMAPSClient("TLS", true);
-        client.setDefaultTimeout(TIMEOUT);
-        client.setConnectTimeout(TIMEOUT);
-        try {
-            Log.d("IMAPClient/SpeechRecog", "Cred-checker connecting");
-            client.connect(host, port);
-            Log.d("IMAPClient/SpeechRecog", "Cred-checker connected");
-
-            validCredentials = client.login(userName, password);
-            client.disconnect();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return validCredentials;
+        bindService();
     }
 
 
     @Override
     public boolean hasUnreadMail() {
-        for (IMAPMail mail : mailList) {
-            if (!mail.getRead()) {
+        List<IMAPMail> mailList = imapClientService.getMailList();
+        for (IMAPMail mail : mailList){
+            if (!mail.getRead()){
                 return true;
             }
         }
@@ -133,40 +86,60 @@ public class IMAPMailClient implements MailClient {
 
     @Override
     public List<Mail> getUnreadMails() {
-        List<Mail> unreadMail = new ArrayList<Mail>();
-        for (IMAPMail mail : mailList) {
-            if (!mail.getRead()) {
-                unreadMail.add(mail);
+        List<IMAPMail> mailList = imapClientService.getMailList();
+
+        // Linked list para poder añadirlos al principio sin perder rendimiento, y así mantener
+        // el orden
+        LinkedList<Mail> unreadMailList = new LinkedList<Mail>();
+
+        for (IMAPMail mail : mailList){
+            if (!mail.getRead()){
+                unreadMailList.addFirst(mail);
             }
         }
-        return unreadMail;
+
+        return unreadMailList;
     }
 
     @Override
     public List<Mail> getAllMails() {
-        // Copiamos la lista para que los cambios de una no afecten a otra
-        List<Mail> safeMailList = new ArrayList<Mail>(mailList.size());
-        for (IMAPMail mail : mailList) {
-            safeMailList.add(mail);
+        List<IMAPMail> mailList = imapClientService.getMailList();
+
+        // Se copia superficialmente la lista para evitar efectos secundarios en su manejo
+        LinkedList<Mail> copiedMailList = new LinkedList<Mail>();
+
+        for (IMAPMail mail : mailList){
+            copiedMailList.addFirst(mail);
         }
-        return safeMailList;
+
+        return copiedMailList;
     }
 
     @Override
     public Mail getNextMail() {
+        if (currentMailList == null){
+            currentMailList = imapClientService.getMailList();
+        }
+
         try {
-            return mailList.get(index++);
-        } catch (IndexOutOfBoundsException e) {
-            index = 0;
+            return currentMailList.get(currentMailListIndex++);
+        } catch (IndexOutOfBoundsException e){
+            currentMailListIndex = 0;
+
+            imapClientService.refresh();
             return null;
         }
     }
 
     @Override
     public Mail getNextUnreadMail() {
-        for (IMAPMail mail : mailList) {
-            if (!mail.getRead()) {
+        for (IMAPMail mail : imapClientService.getMailList()){
+            if (!mail.getRead()){
                 mail.setRead(true);
+
+                if (!hasUnreadMail()){
+                    imapClientService.refresh();
+                }
                 return mail;
             }
         }
@@ -197,7 +170,7 @@ public class IMAPMailClient implements MailClient {
         }
 
         // Set Server data
-        email.setAuthentication(userName, password);
+        email.setAuthentication(username.split("@")[0], password);
         email.setHostName("smtp.gmail.com");
         email.setSSLOnConnect(true);
         email.setSSLCheckServerIdentity(true);
@@ -221,5 +194,4 @@ public class IMAPMailClient implements MailClient {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         return true;
     }
-
 }
