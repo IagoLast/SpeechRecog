@@ -1,5 +1,6 @@
 package es.udc.iagolast.speechrecog.speechrecog.mailClient.imap;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -24,15 +25,19 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
+
 public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
 
     private static final String TAG = "SpeechRecog/IMAPAsyncQuery";
     private String username, password;
+    private Resources r;
 
 
-    public IMAPAsyncQuery(String username, String password) {
+    public IMAPAsyncQuery(String username, String password, Resources resources) {
         this.username = username;
         this.password = password;
+        this.r = resources;
     }
 
     private static String cleanHTML(String html){
@@ -110,13 +115,29 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
         IMAPMail mail = new IMAPMail();
         mail.setRead(msg.isSet(Flags.Flag.SEEN));
         msg.setFlag(Flags.Flag.SEEN, true);
+
+        String from = r.getString(R.string.no_from_value);
+        String to = r.getString(R.string.no_to_value);
+        String subject = r.getString(R.string.no_subject_value);
+
+        if (msg.getFrom().length > 0){
+            from = msg.getFrom()[0].toString();
+        }
+        if (msg.getReplyTo().length > 0){
+            to = msg.getReplyTo()[0].toString();
+        }
+        if (msg.getSubject() != null){
+            subject = msg.getSubject();
+        }
+
         try {
-            mail.setFrom(MimeUtility.decodeText(msg.getFrom()[0].toString()));
-            mail.setTo(MimeUtility.decodeText(msg.getReplyTo()[0].toString()));
-            mail.setSubject(MimeUtility.decodeText(msg.getSubject()));
+            mail.setFrom(MimeUtility.decodeText(from));
+            mail.setTo(MimeUtility.decodeText(to));
+            mail.setSubject(MimeUtility.decodeText(subject));
         } catch (UnsupportedEncodingException e) {
             throw new MessagingException("UnsupportedEncodingException");
         }
+
 
         String body = decodeContent(msg);
         if (body == null){
@@ -136,6 +157,8 @@ public class IMAPAsyncQuery extends AsyncTask<Void, Void, List<IMAPMail>> {
             } catch (MessagingException e) {
                 e.printStackTrace();
             } catch (IOException e){
+                e.printStackTrace();
+            } catch (NullPointerException e){
                 e.printStackTrace();
             }
         }

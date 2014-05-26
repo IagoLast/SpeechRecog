@@ -59,7 +59,7 @@ public class IMAPClientService extends Service {
 
     // Even on services Network operations have to be done inside a AsyncTask
     public void refresh(){
-        new IMAPAsyncQuery(username, password){
+        new IMAPAsyncQuery(username, password, getResources()){
             @Override
             public void onPostExecute(List<IMAPMail> result){
                 mailList = result;
