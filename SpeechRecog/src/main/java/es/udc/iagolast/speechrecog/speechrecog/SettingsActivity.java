@@ -2,16 +2,14 @@ package es.udc.iagolast.speechrecog.speechrecog;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPMailClient;
+
 
 public class SettingsActivity extends Activity {
     SharedPreferences sharedPreferences;

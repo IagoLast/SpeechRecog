@@ -14,12 +14,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
 import es.udc.iagolast.speechrecog.speechrecog.adapters.VtAdapter;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class MainActivity extends Activity {
 
@@ -101,7 +101,8 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder bind) {
             SimpleBinder sBinder = (SimpleBinder) bind;
             speechRecognitionService = sBinder.getService();
-            voicetivityList = VoicetivityManager.getInstance(speechRecognitionService).getVoicetivityList();
+            voicetivityList = new ArrayList<Voicetivity>();
+
             populateListView(voicetivityList);
             bound = true;
         }

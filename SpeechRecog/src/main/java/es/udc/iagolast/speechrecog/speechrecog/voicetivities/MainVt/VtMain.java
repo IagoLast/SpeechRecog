@@ -12,8 +12,10 @@ import java.util.Calendar;
 
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity.VtMail;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWeather.VtWeather;
 
 
 public class VtMain implements Voicetivity {
@@ -53,14 +55,14 @@ public class VtMain implements Voicetivity {
 
         } else if (speech.matches("activar loro")) {
             service.speak("loro");
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Parrot"));
+            service.setCurrentVoicetivity(new VtParrot(service));
         } else if (speech.matches("correo")) {
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Mail"));
+            service.setCurrentVoicetivity(new VtMail(service));
             service.speak(service.getResources().getString(R.string.Speech_Introduction_Welcome_Mail_Manager), false);
             service.speak(service.getResources().getString(R.string.Speech_Introduction_General_Command_Help), false);
         } else if (speech.matches("tiempo")) {
             service.speak("¿que ciudad?");
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Weather"));
+            service.setCurrentVoicetivity(new VtWeather(service));
         } else if (speech.matches("encender Bluetooth|encender blutud|encender bluetooth|encender blutooth")) {
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if (!mBluetoothAdapter.isEnabled()) {

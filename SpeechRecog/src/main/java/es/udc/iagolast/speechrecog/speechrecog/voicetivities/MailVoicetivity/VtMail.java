@@ -7,10 +7,9 @@ import android.content.SharedPreferences;
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPMailClient;
 import es.udc.iagolast.speechrecog.speechrecog.mailClient.mock.MailClientMock;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class VtMail implements Voicetivity {
 
@@ -23,7 +22,7 @@ public class VtMail implements Voicetivity {
         SharedPreferences sharedPreferences = service.getSharedPreferences("ziriPrefs", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("mail", "");
         String password = sharedPreferences.getString("password", "");
-        mailClient = new IMAPMailClient(username, password, service.getApplicationContext());
+        mailClient = new MailClientMock();
         state = new MailVtInitialState(this);
 
     }
@@ -36,7 +35,7 @@ public class VtMail implements Voicetivity {
     public void processSpeech(String speech) {
         if (speech.matches(service.getString(R.string.Speech_Keyword_Exit_Mail_Manager))) {
             service.speak(service.getString(R.string.Speech_Response_Leave_Mail_Voicetivity));
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+            service.setCurrentVoicetivity(new VtMain(service));
         } else if (speech.matches(service.getString(R.string.Speech_Keyword_Help_Request))) {
             state.onHelpRequest();
 

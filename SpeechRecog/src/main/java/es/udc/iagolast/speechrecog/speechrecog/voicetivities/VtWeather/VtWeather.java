@@ -7,8 +7,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.Forecast;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 /**
  * Created by iagolast on 25/04/14.
@@ -27,7 +27,7 @@ public class VtWeather implements Voicetivity {
     public void processSpeech(String speech) {
         if (speech.equalsIgnoreCase("salir")) {
             service.speak("Saliendo.");
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+            service.setCurrentVoicetivity(new VtMain(service));
         } else {
 
             try {
@@ -40,7 +40,7 @@ public class VtWeather implements Voicetivity {
                 StrictMode.setThreadPolicy(defaultPolicy);
             } catch (Exception e) {
                 service.speak("No puedo saber que tiempo hace, saliendo.");
-                service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+                service.setCurrentVoicetivity(new VtMain(service));
             }
         }
     }

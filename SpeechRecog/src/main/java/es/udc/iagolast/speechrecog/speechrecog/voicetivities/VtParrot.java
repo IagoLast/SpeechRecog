@@ -1,7 +1,7 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 
 /**
  * Created by iagolast on 11/04/14.
@@ -19,7 +19,7 @@ public class VtParrot implements Voicetivity {
     public void processSpeech(String speech) {
         if (speech.equalsIgnoreCase("Salir")) {
             service.speak("saliendo.");
-            service.setCurrentVoicetivity(VoicetivityManager.getInstance(service).getVoicetivity("Main"));
+            service.setCurrentVoicetivity(new VtMain(service));
         } else {
             service.speak(speech);
         }

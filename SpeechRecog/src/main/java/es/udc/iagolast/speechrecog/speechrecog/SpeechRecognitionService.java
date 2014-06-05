@@ -14,8 +14,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.voicetivityManager.VoicetivityManager;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
     public final int TONE_ERROR = 0;
@@ -30,12 +30,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     private String TAG = "SERVICE";
     ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
 
-    @Override
-    public void onCreate() {
-        Log.d(TAG, "onCreate");
-        super.onCreate();
-        initService();
-    }
+
 
     /**
      * Creates a speech recognizer with a callback to processSpeech.
@@ -44,16 +39,21 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         textToSpeech = new TextToSpeech(this, this);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new Listener(this));
-        setCurrentVoicetivity(VoicetivityManager.getInstance(this).getVoicetivity("Main"));
+        setCurrentVoicetivity(new VtMain(this));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        if (serviceIntent == null) {
-            serviceIntent = intent;
-        }
+        serviceIntent = intent;
+        initService();
         return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
+        return sBinder;
     }
 
     @Override
@@ -82,16 +82,12 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     private void destroyService() {
-        textToSpeech.stop();
+        //textToSpeech.stop();
         textToSpeech.shutdown();
         speechRecognizer.destroy();
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind");
-        return sBinder;
-    }
+
 
     @Override
     public boolean onUnbind(Intent intent) {
