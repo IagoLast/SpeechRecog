@@ -1,15 +1,17 @@
 package es.udc.iagolast.speechrecog.speechrecog;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.os.Binder;
 import android.os.IBinder;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,8 +20,9 @@ import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
-    public final int TONE_ERROR = 0;
-    public final int TONE_OK = 1;
+    public final int ERROR = 0;
+    public final int OK = 1;
+    public final int LISTENING = 2;
 
     private int volume;  //Used to restore the volume to the original value.
     private Voicetivity currentVoicetivity;
@@ -28,9 +31,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     private TextToSpeech textToSpeech;
     private final IBinder sBinder = (IBinder) new SimpleBinder();
     private String TAG = "SERVICE";
-    ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-
-
+    private int NOTIFICATION_ID = 1337;
 
     /**
      * Creates a speech recognizer with a callback to processSpeech.
@@ -71,7 +72,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     public void startListening() {
         speechRecognizer.startListening(serviceIntent);
         muteAudio();
-        startForeground(1337, buildNofification());
+        startForeground(NOTIFICATION_ID, buildNofification(Color.GREEN));
     }
 
     @Override
@@ -82,11 +83,9 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
     }
 
     private void destroyService() {
-        //textToSpeech.stop();
         textToSpeech.shutdown();
         speechRecognizer.destroy();
     }
-
 
 
     @Override
@@ -118,13 +117,16 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      *
      * @return notification.
      */
-    private Notification buildNofification() {
-        Notification notification = new Notification();
-        Intent intent = new Intent(this, SpeechRecognitionService.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notification.flags |= Notification.FLAG_NO_CLEAR;
-        return notification;
+
+
+    private Notification buildNofification(int color) {
+        NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(this)
+                .setContentTitle("Ziri")
+                .setContentText("Ziri se esta ejecutando.")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setLights(color, 2000, 100)
+                .setAutoCancel(false);
+        return mNotifyBuilder.build();
     }
 
     /**
@@ -148,6 +150,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         Log.d("SpeechRecognitionService", "Processing: " + speech);
         if (currentVoicetivity != null) {
             currentVoicetivity.processSpeech(speech);
+            notify(OK);
         } else {
             Log.e("SpeechRecognitionService", "No voicetivity detected");
             Toast.makeText(getApplicationContext(), "No VT set yet.", Toast.LENGTH_SHORT).show();
@@ -160,7 +163,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      */
     public void onError(int error) {
         if (error == 7) {
-            playTone(TONE_ERROR);
+            notify(ERROR);
         }
         waitAndRun();
     }
@@ -174,6 +177,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         }
         speechRecognizer.startListening(serviceIntent);
         muteAudio();
+        notify(LISTENING);
     }
 
     /**
@@ -195,16 +199,17 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         }
     }
 
-    public void playTone(int tone) {
-        switch (tone) {
-            case TONE_ERROR:
-                toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 250);
+    public void notify(int code) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        switch (code) {
+            case ERROR:
+                notificationManager.notify(NOTIFICATION_ID, buildNofification(Color.RED));
                 break;
-            case TONE_OK:
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 250);
+            case OK:
+                notificationManager.notify(NOTIFICATION_ID, buildNofification(Color.BLUE));
                 break;
-            default:
-                toneGenerator.startTone(tone, 500);
+            case LISTENING:
+                notificationManager.notify(NOTIFICATION_ID, buildNofification(Color.GREEN));
 
         }
     }

@@ -43,7 +43,7 @@ public class MailVtStateFour implements MailVoicetivityState {
 
         } else {
             mailBody.append(speech);
-            voicetivity.service.playTone(voicetivity.service.TONE_OK);
+            voicetivity.service.notify(voicetivity.service.OK);
         }
     }
 
