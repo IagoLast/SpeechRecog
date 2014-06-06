@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.mailClient;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient;
 
 import java.util.List;
 

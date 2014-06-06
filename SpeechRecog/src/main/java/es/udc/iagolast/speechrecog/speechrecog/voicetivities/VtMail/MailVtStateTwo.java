@@ -1,11 +1,11 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail;
 
 
 import android.content.res.Resources;
 import android.util.Log;
 
 import es.udc.iagolast.speechrecog.speechrecog.R;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.Mail;
 
 public class MailVtStateTwo implements MailVoicetivityState {
 

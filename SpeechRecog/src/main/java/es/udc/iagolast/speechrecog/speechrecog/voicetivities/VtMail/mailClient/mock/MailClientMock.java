@@ -1,11 +1,11 @@
-package es.udc.iagolast.speechrecog.speechrecog.mailClient.mock;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.mock;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.Mail;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.Mail;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.MailClient;
 
 
 public class MailClientMock implements MailClient {

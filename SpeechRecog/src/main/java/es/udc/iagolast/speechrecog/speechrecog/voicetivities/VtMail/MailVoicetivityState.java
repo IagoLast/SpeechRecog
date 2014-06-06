@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail;
 
 
 public interface MailVoicetivityState {

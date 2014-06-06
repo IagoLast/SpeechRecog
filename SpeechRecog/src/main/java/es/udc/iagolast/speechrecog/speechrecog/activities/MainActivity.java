@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog;
+package es.udc.iagolast.speechrecog.speechrecog.activities;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -17,6 +17,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
+import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService.SimpleBinder;
 import es.udc.iagolast.speechrecog.speechrecog.adapters.VtAdapter;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;

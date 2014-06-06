@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain;
 
 import android.app.Service;
 import android.content.Context;

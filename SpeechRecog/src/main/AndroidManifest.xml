@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="es.udc.iagolast.speechrecog.speechrecog.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,18 +32,13 @@
             android:exported="true" />
 
         <service
-            android:name="es.udc.iagolast.speechrecog.speechrecog.mailClient.imap.IMAPClientService"
+            android:name=".voicetivities.VtMail.mailClient.imap.IMAPClientService"
             android:enabled="true" />
 
         <activity
-            android:name="es.udc.iagolast.speechrecog.speechrecog.SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
 
-        <receiver android:name="es.udc.iagolast.speechrecog.speechrecog.StartOnBoot">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

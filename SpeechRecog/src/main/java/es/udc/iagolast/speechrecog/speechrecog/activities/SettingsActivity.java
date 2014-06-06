@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog;
+package es.udc.iagolast.speechrecog.speechrecog.activities;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import es.udc.iagolast.speechrecog.speechrecog.R;
 
 
 public class SettingsActivity extends Activity {

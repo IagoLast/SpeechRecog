@@ -1,5 +1,5 @@
 <menu xmlns:tools="http://schemas.android.com/tools"
-    tools:context="es.udc.iagolast.speechrecog.speechrecog.SettingsActivity">
+    tools:context="es.udc.iagolast.speechrecog.speechrecog.activities.SettingsActivity">
 
 
 </menu>

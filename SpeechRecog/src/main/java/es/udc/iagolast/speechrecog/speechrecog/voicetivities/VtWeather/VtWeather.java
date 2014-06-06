@@ -6,8 +6,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.Forecast;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain.Forecast;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 
 /**

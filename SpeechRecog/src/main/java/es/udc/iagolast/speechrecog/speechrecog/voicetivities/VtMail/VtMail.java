@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail;
 
 
 import android.content.Context;
@@ -6,9 +6,9 @@ import android.content.SharedPreferences;
 
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.MailClient;
-import es.udc.iagolast.speechrecog.speechrecog.mailClient.mock.MailClientMock;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.MailClient;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.mailClient.mock.MailClientMock;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 
 public class VtMail implements Voicetivity {

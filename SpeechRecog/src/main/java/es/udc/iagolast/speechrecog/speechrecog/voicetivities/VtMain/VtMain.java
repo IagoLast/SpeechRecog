@@ -1,4 +1,4 @@
-package es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt;
+package es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain;
 
 import android.app.SearchManager;
 import android.bluetooth.BluetoothAdapter;
@@ -12,7 +12,7 @@ import java.util.Calendar;
 
 import es.udc.iagolast.speechrecog.speechrecog.R;
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MailVoicetivity.VtMail;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMail.VtMail;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtParrot;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtWeather.VtWeather;

@@ -16,7 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import es.udc.iagolast.speechrecog.speechrecog.speechListener.Listener;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain.VtMain;
 import es.udc.iagolast.speechrecog.speechrecog.voicetivities.Voicetivity;
 
 public class SpeechRecognitionService extends Service implements TextToSpeech.OnInitListener {
@@ -135,10 +135,8 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
      * @param voicetivity Voicetivity to receive the incoming input.
      * @return Voicetivity listening before this action.
      */
-    public Voicetivity setCurrentVoicetivity(Voicetivity voicetivity) {
-        Voicetivity lastVoicetivity = currentVoicetivity;
+    public void setCurrentVoicetivity(Voicetivity voicetivity) {
         currentVoicetivity = voicetivity;
-        return lastVoicetivity;
     }
 
     /**
@@ -158,7 +156,7 @@ public class SpeechRecognitionService extends Service implements TextToSpeech.On
         waitAndRun();
     }
 
-    /**
+    /*
      * If an error happens, just restart and listen again.
      */
     public void onError(int error) {

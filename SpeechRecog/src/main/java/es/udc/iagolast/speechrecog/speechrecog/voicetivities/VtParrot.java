@@ -1,7 +1,7 @@
 package es.udc.iagolast.speechrecog.speechrecog.voicetivities;
 
 import es.udc.iagolast.speechrecog.speechrecog.SpeechRecognitionService;
-import es.udc.iagolast.speechrecog.speechrecog.voicetivities.MainVt.VtMain;
+import es.udc.iagolast.speechrecog.speechrecog.voicetivities.VtMain.VtMain;
 
 /**
  * Created by iagolast on 11/04/14.
