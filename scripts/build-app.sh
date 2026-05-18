@@ -37,6 +37,7 @@ mkdir -p "$MACOS" "$RESOURCES"
 
 cp "$BIN_PATH/$APP_NAME" "$MACOS/$APP_NAME"
 cp "$PLIST" "$CONTENTS/Info.plist"
+cp "$ROOT/Sources/SpeechRecog/Resources/AppIcon.icns" "$RESOURCES/AppIcon.icns"
 
 # Copy any SwiftPM-emitted resource bundles (e.g. SpeechRecog_SpeechRecog.bundle).
 shopt -s nullglob

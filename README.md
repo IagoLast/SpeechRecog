@@ -1,129 +1,108 @@
-# SpeechRecog
+<p align="center">
+  <img src="docs/logo.png" alt="SpeechRecog" width="128" />
+</p>
 
-Grabadora y transcriptora de audio del sistema para macOS, viviendo en la barra
-de menú. Hace de "man-in-the-middle" usando un **Process Tap** + **Aggregate
-Device** de Core Audio (API moderna de macOS 14.2+): el audio sigue sonando
-con normalidad por la salida de siempre y a la vez se graba a un `.m4a`. Al
-parar la grabación, se lanza la transcripción y se genera un `.srt`.
+<h1 align="center">SpeechRecog</h1>
 
-Pensada para grabar reuniones / llamadas (Zoom, Meet, Slack huddles, FaceTime,
-etc.) sin instalar drivers extras ni cambiar manualmente la salida.
+<p align="center">
+  Record system audio + microphone and auto-transcribe to subtitles.<br/>
+  Lives in your menu bar. macOS 14.2+ only. No drivers needed.
+</p>
 
-## Cómo funciona
+<p align="center">
+  <img src="docs/menu.png" alt="Menu bar" width="320" />
+  &nbsp;&nbsp;
+  <img src="docs/settings.png" alt="Settings" width="320" />
+</p>
 
-1. **Process tap global** — Se crea un `CATapDescription` que captura todo el
-   audio de salida del sistema, **excluyendo el PID de la propia app** para no
-   capturar sus propios sonidos de UI.
-2. **Aggregate device privado** — Se crea con `AudioHardwareCreateAggregateDevice`
-   teniendo como *main sub-device* la salida por defecto del sistema (auriculares,
-   altavoces, lo que esté activo). El tap se añade como `kAudioAggregateDeviceTapListKey`.
-   El dispositivo es privado (`kAudioAggregateDeviceIsPrivateKey = true`), así que
-   no aparece en *Ajustes del sistema → Sonido*.
-3. **IOProc + ExtAudioFile** — Un `AudioDeviceIOProc` recibe los buffers del tap
-   y los escribe vía `ExtAudioFileWriteAsync` directamente a un `.m4a` (AAC).
-4. **Transcripción** — Al detener, se cierra el fichero y se invoca el motor de
-   transcripción configurado (WhisperKit por defecto, Apple Speech como opción)
-   para escribir el `.srt` junto al `.m4a`.
+---
 
-Los archivos se guardan en `~/Documents/SpeechRecog/recording-<timestamp>.m4a`
-y `.srt`.
-
-## Requisitos
-
-- macOS **14.2** o superior (la API de Process Taps llegó ahí).
-- Xcode 15.2+ / Command Line Tools con Swift 5.9+.
-- La primera vez que se inicia una grabación macOS pedirá permiso para grabar
-  audio del sistema; hay que aceptarlo en *Ajustes → Privacidad y Seguridad → Grabación de audio*.
-
-## Compilar e instalar
+## Install
 
 ```bash
-make install          # compila + copia a /Applications
-make run              # compila + abre desde ./build sin instalar
-make uninstall        # elimina la .app instalada
-make clean            # borra build/, .build/, .swiftpm/
-make help             # lista de targets
+curl -fsSL https://raw.githubusercontent.com/IagoLast/SpeechRecog/master/scripts/install.sh | bash
 ```
 
-`make install` por defecto va a `/Applications`. Para instalar solo para
-tu usuario sin sudo:
+Requires macOS 14.2+ and Xcode Command Line Tools (`xcode-select --install`).
+
+## Features
+
+- **System audio capture** — Records everything playing on your Mac (meetings, music, videos) using Core Audio Process Taps. No virtual audio drivers needed.
+- **Microphone mixing** — Optionally mix your microphone input into the recording so both sides of a conversation are captured in one file.
+- **Auto-transcription** — Generates `.srt` subtitles automatically when you stop recording. Choose between WhisperKit (on-device, private) or Apple Speech.
+- **Multiple Whisper models** — From Tiny (~75 MB, fast) to Large v3 (~3 GB, best quality). Models download automatically on first use.
+- **Language detection** — Auto-detects the spoken language, or set a specific BCP-47 code (e.g. `es`, `en-US`, `pt-BR`).
+- **Custom recordings folder** — Save recordings anywhere on your Mac.
+- **Menu bar app** — Doesn't clutter your Dock. Keyboard shortcuts for everything.
+- **Re-transcribe** — Re-run transcription on any past recording with a different model or engine.
+
+## How it works
+
+1. A **Process Tap** captures all system audio, excluding SpeechRecog's own PID
+2. A private **Aggregate Device** keeps audio playing through your speakers/headphones normally
+3. An **IOProc** writes the audio stream to `.m4a` (AAC), optionally mixing in microphone input
+4. On stop, the configured transcription engine generates an `.srt` file alongside the recording
+
+Recordings are saved to `~/Documents/SpeechRecog/` by default (configurable in Preferences).
+
+## Usage
+
+1. Launch the app — a waveform icon appears in the menu bar
+2. Click **Start recording** (`Cmd+R`) — icon turns to a red circle
+3. Have your meeting / call as usual
+4. Click **Stop recording** — icon shows a progress indicator while transcribing
+5. Click **Open recordings folder** (`Cmd+O`) to find your `.m4a` + `.srt`
+
+## Preferences
+
+| Setting | Description |
+|---|---|
+| **Include microphone** | Mix mic input into the system audio recording |
+| **Transcription engine** | WhisperKit (on-device) or Apple Speech |
+| **Whisper model** | Tiny / Base / Small / Medium / Large v3 |
+| **Language** | BCP-47 code or empty for auto-detection |
+| **Recordings folder** | Where `.m4a` and `.srt` files are saved |
+
+## Build from source
+
+```bash
+git clone https://github.com/IagoLast/SpeechRecog.git
+cd SpeechRecog
+make install              # build + copy to /Applications
+```
+
+Other targets:
+
+```bash
+make run                  # build + open from ./build (no install)
+make uninstall            # remove from /Applications
+make clean                # delete build artifacts
+```
+
+Install to a custom location:
 
 ```bash
 make install INSTALL_DIR=~/Applications
 ```
 
-Para firmar con tu Developer ID en lugar de ad-hoc:
+Sign with your Developer ID:
 
 ```bash
-CODESIGN_IDENTITY="Developer ID Application: TU NOMBRE (TEAMID)" make install
+CODESIGN_IDENTITY="Developer ID Application: ..." make install
 ```
 
-El proceso por dentro (`./scripts/build-app.sh`):
-1. `swift build -c release --arch arm64 --arch x86_64` → binario universal.
-2. Monta un bundle `.app` con `Info.plist` (`LSUIElement = true` → no aparece en el Dock).
-3. Firma con `codesign` (ad-hoc por defecto; respeta `CODESIGN_IDENTITY` si está exportado).
+## Permissions
 
-Para iterar en Xcode:
+On first launch, macOS will prompt for:
 
-```bash
-open Package.swift
-```
+- **Screen Recording** — Required for Process Taps to capture system audio
+- **Microphone** — Required only if "Include microphone" is enabled
 
-Xcode lo reconoce como paquete SwiftPM y permite ejecutarlo con ⌘R.
+## Known limitations
 
-## Usar
+- Changing the audio output device mid-recording won't be picked up — stop and restart the recording
+- Not sandboxed: Process Taps require `com.apple.security.device.audio-input` entitlement outside the App Sandbox
 
-1. Lanza la app. Aparece un icono de onda en la barra superior, al lado del reloj.
-2. Click → **Iniciar grabación**. El icono pasa a círculo rojo.
-3. Haz tu llamada / reunión con normalidad.
-4. Click → **Detener grabación**. El icono pasa a "lupa sobre onda" mientras transcribe.
-5. Al terminar, el icono vuelve a su estado idle. Click → **Abrir carpeta de grabaciones**
-   para ver el `.m4a` + `.srt` recién creados.
+## License
 
-### Preferencias
-
-- **Motor de transcripción**: WhisperKit (recomendado) o Apple Speech.
-- **Modelo Whisper**: tiny / base / small / medium / large-v3. Los modelos se
-  descargan automáticamente la primera vez desde Hugging Face vía WhisperKit.
-- **Idioma**: código BCP-47 (`es`, `en-US`, `pt-BR`, …). Vacío → auto-detección
-  (WhisperKit lo soporta nativamente; Apple Speech usa el idioma del sistema).
-
-## Limitaciones conocidas
-
-- **Solo audio del sistema** (lo que sonaría por los altavoces). Para grabar
-  también el micrófono y mezclar las dos pistas habría que ampliar el aggregate
-  device para incluir el dispositivo de entrada del sistema y mezclar las
-  pistas con un `AVAudioMixerNode`. Está en la lista de mejoras.
-- Si cambias la salida de audio del sistema en medio de una grabación, la
-  grabación se queda atada al dispositivo que estuviera activo al pulsar
-  *Iniciar*. Reiniciar la grabación recoge el dispositivo nuevo.
-- Sin sandbox: para usar Process Taps el binario debe estar firmado con
-  `com.apple.security.device.audio-input` y, en builds sandbox-eadas,
-  permisos extra que Apple aún no expone limpiamente.
-
-## Estructura del proyecto
-
-```
-Sources/SpeechRecog/
-├── main.swift                         · Entry point AppKit
-├── AppDelegate.swift
-├── MenuBarController.swift            · NSStatusItem + menú
-├── RecordingCoordinator.swift         · State machine grabar / transcribir
-├── Audio/
-│   ├── CoreAudioBridge.swift          · Helpers para propiedades de Core Audio
-│   └── SystemAudioCapture.swift       · Process Tap + Aggregate Device + ExtAudioFile
-├── Transcription/
-│   ├── TranscriptionEngine.swift      · Protocolo + factory
-│   ├── WhisperKitEngine.swift         · Backend por defecto
-│   ├── AppleSpeechEngine.swift        · SFSpeechRecognizer
-│   └── SRTWriter.swift
-├── Storage/
-│   ├── RecordingsStore.swift          · ~/Documents/SpeechRecog
-│   └── Settings.swift                 · UserDefaults
-└── UI/
-    └── PreferencesWindow.swift        · SwiftUI
-```
-
-## Licencia
-
-MIT. WhisperKit usa la licencia MIT; los modelos Whisper son de OpenAI (MIT).
+MIT
