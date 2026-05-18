@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>es</string>
+    <key>CFBundleExecutable</key>
+    <string>SpeechRecog</string>
+    <key>CFBundleIdentifier</key>
+    <string>es.speechrecog.menubar</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>SpeechRecog</string>
+    <key>CFBundleDisplayName</key>
+    <string>SpeechRecog</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.2</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSAudioCaptureUsageDescription</key>
+    <string>SpeechRecog graba el audio del sistema (excluyendo sus propios sonidos) para transcribir reuniones y llamadas.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>SpeechRecog usa el reconocedor de Apple para transcribir grabaciones cuando seleccionas ese motor.</string>
+</dict>
+</plist>
