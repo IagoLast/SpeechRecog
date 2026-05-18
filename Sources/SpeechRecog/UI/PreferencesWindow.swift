@@ -9,7 +9,7 @@ enum PreferencesWindow {
         let window = NSWindow(contentViewController: host)
         window.title = "SpeechRecog · Preferencias"
         window.styleMask = [.titled, .closable, .miniaturizable]
-        window.setContentSize(NSSize(width: 460, height: 280))
+        window.setContentSize(NSSize(width: 460, height: 400))
         window.isReleasedWhenClosed = false
         window.center()
         return window
@@ -21,6 +21,10 @@ private struct PreferencesView: View {
 
     var body: some View {
         Form {
+            Section("Audio") {
+                Toggle("Incluir micrófono", isOn: $settings.includeMicrophone)
+            }
+
             Section("Transcripción") {
                 Picker("Motor", selection: $settings.transcriptionBackend) {
                     ForEach(TranscriptionBackend.allCases) { backend in
@@ -45,10 +49,35 @@ private struct PreferencesView: View {
                 )
             }
 
-            Section {
-                Text("Las grabaciones (.m4a) y subtítulos (.srt) se guardan en ~/Documents/SpeechRecog.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            Section("Almacenamiento") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Carpeta de grabaciones")
+                        Text(settings.recordingsFolder.path)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    Spacer()
+                    Button("Cambiar\u{2026}") {
+                        let panel = NSOpenPanel()
+                        panel.canChooseDirectories = true
+                        panel.canChooseFiles = false
+                        panel.canCreateDirectories = true
+                        panel.allowsMultipleSelection = false
+                        panel.directoryURL = settings.recordingsFolder
+                        panel.prompt = "Elegir"
+                        if panel.runModal() == .OK, let url = panel.url {
+                            settings.recordingsFolder = url
+                        }
+                    }
+                }
+                Button("Restaurar por defecto") {
+                    settings.recordingsFolder = Settings.defaultRecordingsFolder
+                }
+                .foregroundStyle(.secondary)
+                .controlSize(.small)
             }
         }
         .formStyle(.grouped)

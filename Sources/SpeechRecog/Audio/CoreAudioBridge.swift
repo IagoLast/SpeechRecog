@@ -55,6 +55,52 @@ enum CoreAudio {
         return processObject
     }
 
+    static func deviceNominalSampleRate(_ deviceID: AudioObjectID) throws -> Double {
+        var addr = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyNominalSampleRate,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var rate: Float64 = 0
+        var size = UInt32(MemoryLayout<Float64>.size)
+        try check(
+            AudioObjectGetPropertyData(deviceID, &addr, 0, nil, &size, &rate),
+            "NominalSampleRate"
+        )
+        return rate
+    }
+
+    static func deviceInputStreamFormat(_ deviceID: AudioObjectID) throws -> AudioStreamBasicDescription {
+        var addr = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreamFormat,
+            mScope: kAudioObjectPropertyScopeInput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var asbd = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        try check(
+            AudioObjectGetPropertyData(deviceID, &addr, 0, nil, &size, &asbd),
+            "DeviceInputStreamFormat"
+        )
+        return asbd
+    }
+
+    static func defaultOutputDeviceID() throws -> AudioObjectID {
+        var addr = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var deviceID = AudioObjectID(kAudioObjectUnknown)
+        var size = UInt32(MemoryLayout<AudioObjectID>.size)
+        try check(
+            AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &deviceID),
+            "DefaultOutputDevice"
+        )
+        guard deviceID != kAudioObjectUnknown else { throw CoreAudioError.noDefaultOutputDevice }
+        return deviceID
+    }
+
     static func defaultOutputDeviceUID() throws -> String {
         var addr = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDefaultOutputDevice,

@@ -26,6 +26,8 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>SpeechRecog necesita acceso al micrófono para grabar tu voz junto con el audio del sistema.</string>
     <key>NSAudioCaptureUsageDescription</key>
     <string>SpeechRecog graba el audio del sistema (excluyendo sus propios sonidos) para transcribir reuniones y llamadas.</string>
     <key>NSSpeechRecognitionUsageDescription</key>

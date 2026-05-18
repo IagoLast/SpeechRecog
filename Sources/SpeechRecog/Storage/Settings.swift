@@ -41,6 +41,8 @@ final class Settings: ObservableObject {
         static let backend = "transcriptionBackend"
         static let whisperModel = "whisperModel"
         static let language = "language"
+        static let includeMicrophone = "includeMicrophone"
+        static let recordingsFolder = "recordingsFolder"
     }
 
     private let defaults = UserDefaults.standard
@@ -58,11 +60,41 @@ final class Settings: ObservableObject {
         didSet { defaults.set(language, forKey: Key.language) }
     }
 
+    @Published var includeMicrophone: Bool {
+        didSet { defaults.set(includeMicrophone, forKey: Key.includeMicrophone) }
+    }
+
+    @Published var recordingsFolder: URL {
+        didSet {
+            defaults.set(recordingsFolder.path, forKey: Key.recordingsFolder)
+            try? FileManager.default.createDirectory(at: recordingsFolder, withIntermediateDirectories: true)
+        }
+    }
+
+    static var defaultRecordingsFolder: URL {
+        let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Documents")
+        return base.appendingPathComponent("SpeechRecog", isDirectory: true)
+    }
+
     init() {
         self.transcriptionBackend = TranscriptionBackend(
             rawValue: UserDefaults.standard.string(forKey: Key.backend) ?? ""
         ) ?? .whisperKit
         self.whisperModel = UserDefaults.standard.string(forKey: Key.whisperModel) ?? WhisperModel.base.rawValue
         self.language = UserDefaults.standard.string(forKey: Key.language)
+
+        if UserDefaults.standard.object(forKey: Key.includeMicrophone) != nil {
+            self.includeMicrophone = UserDefaults.standard.bool(forKey: Key.includeMicrophone)
+        } else {
+            self.includeMicrophone = true
+        }
+
+        if let path = UserDefaults.standard.string(forKey: Key.recordingsFolder), !path.isEmpty {
+            self.recordingsFolder = URL(fileURLWithPath: path, isDirectory: true)
+        } else {
+            self.recordingsFolder = Settings.defaultRecordingsFolder
+        }
+        try? FileManager.default.createDirectory(at: self.recordingsFolder, withIntermediateDirectories: true)
     }
 }

@@ -25,6 +25,8 @@ build:
 	@./scripts/build-app.sh
 
 install: build
+	@pkill -f "$(APP_NAME).app/Contents/MacOS/$(APP_NAME)" 2>/dev/null || true
+	@sleep 0.5
 	@if [ ! -d "$(INSTALL_DIR)" ]; then \
 		echo "✗ $(INSTALL_DIR) no existe"; exit 1; \
 	fi

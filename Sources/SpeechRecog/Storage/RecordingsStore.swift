@@ -8,13 +8,32 @@ struct Recording {
 }
 
 final class RecordingsStore {
-    let folder: URL
+    var folder: URL
 
-    init() {
-        let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Documents")
-        self.folder = base.appendingPathComponent("SpeechRecog", isDirectory: true)
+    init(folder: URL) {
+        self.folder = folder
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    }
+
+    func listRecordings() -> [Recording] {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(
+            at: folder, includingPropertiesForKeys: [.creationDateKey], options: .skipsHiddenFiles
+        ) else { return [] }
+
+        let m4aFiles = files.filter { $0.pathExtension == "m4a" }
+        return m4aFiles.compactMap { audioURL -> Recording? in
+            let creationDate = (try? audioURL.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? Date.distantPast
+            let baseName = audioURL.deletingPathExtension().lastPathComponent
+            let subtitleURL = folder.appendingPathComponent(baseName).appendingPathExtension("srt")
+            return Recording(
+                id: UUID(),
+                createdAt: creationDate,
+                audioURL: audioURL,
+                subtitleURL: subtitleURL
+            )
+        }
+        .sorted { $0.createdAt > $1.createdAt }
     }
 
     func makeNewRecording() throws -> Recording {
