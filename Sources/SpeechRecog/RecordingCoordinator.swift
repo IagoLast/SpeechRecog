@@ -34,7 +34,7 @@ final class RecordingCoordinator: ObservableObject {
     private func start() async {
         do {
             let recording = try store.makeNewRecording()
-            let capture = try SystemAudioCapture(outputURL: recording.audioURL)
+            let capture = SystemAudioCapture(outputURL: recording.audioURL)
             try capture.start()
             self.capture = capture
             self.currentRecording = recording

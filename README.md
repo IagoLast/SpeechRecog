@@ -35,19 +35,35 @@ y `.srt`.
 - La primera vez que se inicia una grabación macOS pedirá permiso para grabar
   audio del sistema; hay que aceptarlo en *Ajustes → Privacidad y Seguridad → Grabación de audio*.
 
-## Compilar
+## Compilar e instalar
 
 ```bash
-./scripts/build-app.sh
-open build/SpeechRecog.app
+make install          # compila + copia a /Applications
+make run              # compila + abre desde ./build sin instalar
+make uninstall        # elimina la .app instalada
+make clean            # borra build/, .build/, .swiftpm/
+make help             # lista de targets
 ```
 
-El script:
-1. Lanza `swift build -c release` con arquitecturas `arm64` + `x86_64`.
-2. Monta un bundle `.app` con `Info.plist` (LSUIElement = true → no aparece en el Dock).
-3. Firma localmente (ad-hoc). Para distribución, exporta `CODESIGN_IDENTITY="Developer ID Application: TU NOMBRE (TEAMID)"` antes de ejecutarlo.
+`make install` por defecto va a `/Applications`. Para instalar solo para
+tu usuario sin sudo:
 
-Para abrirlo en Xcode como proyecto (más cómodo para iterar):
+```bash
+make install INSTALL_DIR=~/Applications
+```
+
+Para firmar con tu Developer ID en lugar de ad-hoc:
+
+```bash
+CODESIGN_IDENTITY="Developer ID Application: TU NOMBRE (TEAMID)" make install
+```
+
+El proceso por dentro (`./scripts/build-app.sh`):
+1. `swift build -c release --arch arm64 --arch x86_64` → binario universal.
+2. Monta un bundle `.app` con `Info.plist` (`LSUIElement = true` → no aparece en el Dock).
+3. Firma con `codesign` (ad-hoc por defecto; respeta `CODESIGN_IDENTITY` si está exportado).
+
+Para iterar en Xcode:
 
 ```bash
 open Package.swift
