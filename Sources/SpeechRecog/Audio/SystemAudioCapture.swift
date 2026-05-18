@@ -27,10 +27,9 @@ final class SystemAudioCapture {
     }
 
     func start() throws {
-        let tapID = try createProcessTap()
+        let (tapID, tapUID) = try createProcessTap()
         self.tapID = tapID
 
-        let tapUID = try fetchTapUID(tapID: tapID)
         let tapFormat = try fetchTapFormat(tapID: tapID)
 
         let outputUID = try CoreAudio.defaultOutputDeviceUID()
@@ -69,23 +68,20 @@ final class SystemAudioCapture {
 
     // MARK: - Tap creation
 
-    private func createProcessTap() throws -> AudioObjectID {
+    private func createProcessTap() throws -> (id: AudioObjectID, uid: String) {
         let ownProcessObject = try CoreAudio.translatePIDToProcessObject(getpid())
 
         let description = CATapDescription(
             stereoGlobalTapButExcludeProcesses: [NSNumber(value: ownProcessObject)]
         )
+        let tapUUID = UUID()
+        description.uuid = tapUUID
         description.name = "SpeechRecog Tap"
         description.isPrivate = true
-        description.muteBehavior = .unmuted
 
         var tapID = AudioObjectID(kAudioObjectUnknown)
         try CoreAudio.check(AudioHardwareCreateProcessTap(description, &tapID), "CreateProcessTap")
-        return tapID
-    }
-
-    private func fetchTapUID(tapID: AudioObjectID) throws -> String {
-        try cfStringProperty(of: tapID, selector: kAudioTapPropertyUID)
+        return (tapID, tapUUID.uuidString)
     }
 
     private func fetchTapFormat(tapID: AudioObjectID) throws -> AudioStreamBasicDescription {
@@ -113,6 +109,7 @@ final class SystemAudioCapture {
             kAudioAggregateDeviceMainSubDeviceKey as String: outputUID,
             kAudioAggregateDeviceIsPrivateKey as String: true,
             kAudioAggregateDeviceIsStackedKey as String: false,
+            kAudioAggregateDeviceTapAutoStartKey as String: true,
             kAudioAggregateDeviceTapListKey as String: [
                 [
                     kAudioSubTapUIDKey as String: tapUID,
@@ -216,22 +213,4 @@ final class SystemAudioCapture {
         self.ioProcID = procID
     }
 
-    // MARK: - Helpers
-
-    private func cfStringProperty(of objectID: AudioObjectID, selector: AudioObjectPropertySelector) throws -> String {
-        var addr = AudioObjectPropertyAddress(
-            mSelector: selector,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
-        )
-        var value: CFString = "" as CFString
-        var size = UInt32(MemoryLayout<CFString>.size)
-        try withUnsafeMutablePointer(to: &value) { ptr in
-            try CoreAudio.check(
-                AudioObjectGetPropertyData(objectID, &addr, 0, nil, &size, ptr),
-                "Property \(selector)"
-            )
-        }
-        return value as String
-    }
 }

@@ -5,6 +5,7 @@ enum CoreAudioError: LocalizedError {
     case osStatus(String, OSStatus)
     case unsupportedFormat
     case noDefaultOutputDevice
+    case processObjectNotFound(pid_t)
 
     var errorDescription: String? {
         switch self {
@@ -14,6 +15,8 @@ enum CoreAudioError: LocalizedError {
             return "Formato de audio no soportado"
         case .noDefaultOutputDevice:
             return "No hay dispositivo de salida por defecto"
+        case .processObjectNotFound(let pid):
+            return "Core Audio no encontró el proceso con PID \(pid)"
         }
     }
 }
@@ -46,6 +49,9 @@ enum CoreAudio {
             )
         }
         try check(status, "TranslatePIDToProcessObject")
+        guard processObject != kAudioObjectUnknown else {
+            throw CoreAudioError.processObjectNotFound(pid)
+        }
         return processObject
     }
 
