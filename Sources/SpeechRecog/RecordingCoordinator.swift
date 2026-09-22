@@ -6,6 +6,7 @@ import AppKit
 final class RecordingCoordinator: ObservableObject {
     enum State: Equatable {
         case idle
+        case starting
         case recording
         case transcribing(progress: Double)
     }
@@ -17,9 +18,9 @@ final class RecordingCoordinator: ObservableObject {
     private(set) var store: RecordingsStore
 
     private var capture: SystemAudioCapture?
-    private var micCapture: MicrophoneCapture?
     private var currentRecording: Recording?
     private var folderObserver: AnyCancellable?
+    private var transcriptionID: UUID?
 
     var recordingsFolder: URL { store.folder }
 
@@ -36,30 +37,39 @@ final class RecordingCoordinator: ObservableObject {
             await start()
         case .recording:
             await stop()
-        case .transcribing:
+        case .starting, .transcribing:
             break
         }
     }
 
     private func start() async {
+        state = .starting
         do {
-            let recording = try store.makeNewRecording()
+            var mic: MicrophoneCapture?
+            if settings.includeMicrophone {
+                if await MicrophoneCapture.requestAccess() {
+                    mic = MicrophoneCapture()
+                } else {
+                    NSLog("[SpeechRecog] Microphone access denied; recording system audio only")
+                }
+            }
 
-            let mic: MicrophoneCapture? = settings.includeMicrophone ? MicrophoneCapture() : nil
+            let recording = try store.makeNewRecording()
 
             let capture = SystemAudioCapture(outputURL: recording.audioURL, micCapture: mic)
             capture.onLevel = { [weak self] level in
                 Task { @MainActor in
+                    guard self?.state == .recording else { return }
                     self?.audioLevel = level
                 }
             }
             try capture.start()
 
-            self.micCapture = mic
             self.capture = capture
             self.currentRecording = recording
             state = .recording
         } catch {
+            state = .idle
             NSLog("[SpeechRecog] start error: \(error)")
             presentError(error)
         }
@@ -67,23 +77,39 @@ final class RecordingCoordinator: ObservableObject {
 
     private func stop() async {
         guard let capture, let recording = currentRecording else { return }
+        self.capture = nil
+        currentRecording = nil
+        audioLevel = 0
         do {
             try capture.stop()
         } catch {
             NSLog("[SpeechRecog] stop error: \(error)")
+            state = .idle
+            presentError(error)
+            return
         }
-        self.capture = nil
-        self.micCapture?.stop()
-        self.micCapture = nil
-        self.currentRecording = nil
-        self.audioLevel = 0
+        await transcribe(recording)
+    }
 
+    func retranscribe(recording: Recording) async {
+        guard case .idle = state else { return }
+        await transcribe(recording)
+    }
+
+    private func transcribe(_ recording: Recording) async {
+        let id = UUID()
+        transcriptionID = id
         state = .transcribing(progress: 0)
+        defer {
+            transcriptionID = nil
+            state = .idle
+        }
         do {
-            let engine = try TranscriptionEngineFactory.make(settings: settings)
+            let engine = TranscriptionEngineFactory.make(settings: settings)
             let result = try await engine.transcribe(audioURL: recording.audioURL) { [weak self] progress in
                 Task { @MainActor in
-                    self?.state = .transcribing(progress: progress)
+                    guard let self, self.transcriptionID == id, progress.isFinite else { return }
+                    self.state = .transcribing(progress: min(1, max(0, progress)))
                 }
             }
             try SRTWriter.write(segments: result.segments, to: recording.subtitleURL)
@@ -92,26 +118,16 @@ final class RecordingCoordinator: ObservableObject {
             NSLog("[SpeechRecog] transcription error: \(error)")
             presentError(error)
         }
-        state = .idle
     }
 
-    func retranscribe(recording: Recording) async {
-        guard case .idle = state else { return }
-        state = .transcribing(progress: 0)
+    func shutdown() {
+        transcriptionID = nil
         do {
-            let engine = try TranscriptionEngineFactory.make(settings: settings)
-            let result = try await engine.transcribe(audioURL: recording.audioURL) { [weak self] progress in
-                Task { @MainActor in
-                    self?.state = .transcribing(progress: progress)
-                }
-            }
-            try SRTWriter.write(segments: result.segments, to: recording.subtitleURL)
-            NSLog("[SpeechRecog] re-transcript saved at \(recording.subtitleURL.path)")
+            try capture?.stop()
         } catch {
-            NSLog("[SpeechRecog] retranscription error: \(error)")
-            presentError(error)
+            NSLog("[SpeechRecog] shutdown error: \(error)")
         }
-        state = .idle
+        capture = nil
     }
 
     private func presentError(_ error: Error) {

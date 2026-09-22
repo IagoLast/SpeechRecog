@@ -12,7 +12,6 @@ final class RecordingsStore {
 
     init(folder: URL) {
         self.folder = folder
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
     }
 
     func listRecordings() -> [Recording] {
@@ -37,12 +36,13 @@ final class RecordingsStore {
     }
 
     func makeNewRecording() throws -> Recording {
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let now = Date()
         let id = UUID()
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate, .withTime, .withColonSeparatorInTime]
         let stamp = formatter.string(from: now).replacingOccurrences(of: ":", with: "-")
-        let base = folder.appendingPathComponent("recording-\(stamp)")
+        let base = folder.appendingPathComponent("recording-\(stamp)-\(id.uuidString)")
         return Recording(
             id: id,
             createdAt: now,

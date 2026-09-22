@@ -8,20 +8,25 @@ let package = Package(
         .executable(name: "SpeechRecog", targets: ["SpeechRecog"])
     ],
     dependencies: [
-        .package(url: "https://github.com/argmaxinc/WhisperKit", from: "0.9.0")
+        .package(url: "https://github.com/argmaxinc/WhisperKit", from: "0.9.0"),
+        .package(url: "https://github.com/apple/swift-atomics.git", from: "1.2.0")
     ],
     targets: [
         .executableTarget(
             name: "SpeechRecog",
             dependencies: [
-                .product(name: "WhisperKit", package: "WhisperKit")
+                .product(name: "WhisperKit", package: "WhisperKit"),
+                .product(name: "Atomics", package: "swift-atomics")
             ],
             path: "Sources/SpeechRecog",
             exclude: [
                 "Resources/Info.plist",
                 "Resources/SpeechRecog.entitlements",
-                "Resources/Assets.xcassets"
+                "Resources/Assets.xcassets",
+                "Resources/AppIcon.icns",
+                "Resources/AppIcon.iconset"
             ]
-        )
+        ),
+        .testTarget(name: "SpeechRecogTests", dependencies: ["SpeechRecog"])
     ]
 )

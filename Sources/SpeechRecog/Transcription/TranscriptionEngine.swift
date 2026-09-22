@@ -21,7 +21,7 @@ protocol TranscriptionEngine {
 }
 
 enum TranscriptionEngineFactory {
-    static func make(settings: Settings) throws -> TranscriptionEngine {
+    static func make(settings: Settings) -> TranscriptionEngine {
         switch settings.transcriptionBackend {
         case .whisperKit:
             return WhisperKitEngine(modelName: settings.whisperModel, language: settings.language)

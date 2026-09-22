@@ -1,4 +1,4 @@
-.PHONY: all build install uninstall run clean help
+.PHONY: all build test install uninstall run clean help
 
 APP_NAME    := SpeechRecog
 BUILD_DIR   := build
@@ -11,6 +11,7 @@ help:
 	@echo "SpeechRecog · targets disponibles"
 	@echo ""
 	@echo "  make build      → compila $(APP_BUNDLE)"
+	@echo "  make test       → ejecuta las pruebas de audio y almacenamiento"
 	@echo "  make install    → compila y copia la .app a $(INSTALL_DIR)/"
 	@echo "                    (override: make install INSTALL_DIR=~/Applications)"
 	@echo "  make uninstall  → elimina $(INSTALL_DIR)/$(APP_NAME).app"
@@ -18,11 +19,15 @@ help:
 	@echo "  make clean      → borra build/, .build/ y .swiftpm/"
 	@echo ""
 	@echo "Variables:"
-	@echo "  CODESIGN_IDENTITY  identidad para firmar (por defecto: ad-hoc '-')"
+	@echo "  CODESIGN_IDENTITY  identidad para firmar (por defecto: certificado local disponible)"
+	@echo "                     sin certificado se usa ad-hoc, que puede perder permisos al recompilar"
 	@echo "                     ej.: CODESIGN_IDENTITY=\"Developer ID Application: …\" make install"
 
 build:
 	@./scripts/build-app.sh
+
+test:
+	@swift test
 
 install: build
 	@pkill -f "$(APP_NAME).app/Contents/MacOS/$(APP_NAME)" 2>/dev/null || true

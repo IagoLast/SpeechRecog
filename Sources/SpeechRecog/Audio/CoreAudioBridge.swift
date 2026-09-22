@@ -101,27 +101,14 @@ enum CoreAudio {
         return deviceID
     }
 
-    static func defaultOutputDeviceUID() throws -> String {
-        var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
-        )
-        var deviceID = AudioObjectID(kAudioObjectUnknown)
-        var size = UInt32(MemoryLayout<AudioObjectID>.size)
-        try check(
-            AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &deviceID),
-            "DefaultOutputDevice"
-        )
-        guard deviceID != kAudioObjectUnknown else { throw CoreAudioError.noDefaultOutputDevice }
-
+    static func deviceUID(_ deviceID: AudioObjectID) throws -> String {
         var uidAddr = AudioObjectPropertyAddress(
             mSelector: kAudioDevicePropertyDeviceUID,
             mScope: kAudioObjectPropertyScopeGlobal,
             mElement: kAudioObjectPropertyElementMain
         )
         var uid: CFString = "" as CFString
-        size = UInt32(MemoryLayout<CFString>.size)
+        var size = UInt32(MemoryLayout<CFString>.size)
         try withUnsafeMutablePointer(to: &uid) { ptr in
             try check(
                 AudioObjectGetPropertyData(deviceID, &uidAddr, 0, nil, &size, ptr),

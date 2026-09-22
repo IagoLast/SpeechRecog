@@ -67,7 +67,6 @@ final class Settings: ObservableObject {
     @Published var recordingsFolder: URL {
         didSet {
             defaults.set(recordingsFolder.path, forKey: Key.recordingsFolder)
-            try? FileManager.default.createDirectory(at: recordingsFolder, withIntermediateDirectories: true)
         }
     }
 
@@ -95,6 +94,5 @@ final class Settings: ObservableObject {
         } else {
             self.recordingsFolder = Settings.defaultRecordingsFolder
         }
-        try? FileManager.default.createDirectory(at: self.recordingsFolder, withIntermediateDirectories: true)
     }
 }

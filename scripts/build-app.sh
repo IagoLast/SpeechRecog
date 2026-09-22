@@ -46,8 +46,24 @@ for bundle in "$BIN_PATH"/*.bundle; do
 done
 shopt -u nullglob
 
-# Sign for local development. For distribution, replace with your Developer ID.
-SIGN_ID="${CODESIGN_IDENTITY:--}"
+# A certificate gives TCC a stable identity across rebuilds. Ad-hoc signatures
+# identify the executable by its hash, invalidating permissions when it changes.
+SIGN_ID="${CODESIGN_IDENTITY:-}"
+if [[ -z "$SIGN_ID" ]]; then
+    IDENTITIES="$(security find-identity -v -p codesigning 2>/dev/null || true)"
+    SIGN_ID="$(awk '/"Apple Development:|"Mac Developer:/ { print $2; exit }' <<< "$IDENTITIES")"
+    if [[ -z "$SIGN_ID" ]]; then
+        SIGN_ID="$(awk '/"Developer ID Application:/ { print $2; exit }' <<< "$IDENTITIES")"
+    fi
+    SIGN_ID="${SIGN_ID:--}"
+fi
+
+if [[ "$SIGN_ID" == "-" ]]; then
+    echo "  No signing certificate selected; using an ad-hoc signature."
+    echo "  macOS may ask for permissions again after rebuilding."
+    echo "  Set CODESIGN_IDENTITY to a development certificate to preserve permissions."
+fi
+
 echo "→ codesign --sign $SIGN_ID --entitlements $ENTITLEMENTS"
 codesign --force --deep --sign "$SIGN_ID" \
     --entitlements "$ENTITLEMENTS" \

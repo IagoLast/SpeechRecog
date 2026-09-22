@@ -7,6 +7,7 @@ import AVFoundation
 /// native sample rate. The consumer is responsible for matching rates.
 final class MicrophoneCapture {
     private let engine = AVAudioEngine()
+    private var tapInstalled = false
     let ringBuffer: AudioRingBuffer
     private(set) var sampleRate: Double = 0
     private(set) var channels: UInt32 = 0
@@ -15,7 +16,28 @@ final class MicrophoneCapture {
         self.ringBuffer = AudioRingBuffer(capacity: 48_000 * 2)
     }
 
+    static func requestAccess() async -> Bool {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .audio)
+        case .denied, .restricted:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
+    deinit {
+        stop()
+    }
+
     func start(targetSampleRate: Double? = nil) throws {
+        var started = false
+        defer {
+            if !started { stop() }
+        }
         let inputNode = engine.inputNode
         let hwFormat = inputNode.inputFormat(forBus: 0)
         guard hwFormat.sampleRate > 0, hwFormat.channelCount > 0 else {
@@ -61,14 +83,19 @@ final class MicrophoneCapture {
                 self.ringBuffer.write(from: floatData[0], count: Int(pcmBuffer.frameLength))
             }
         }
+        tapInstalled = true
 
         try engine.start()
+        started = true
         NSLog("[SpeechRecog] Mic started: hw=%.0f Hz → output=%.0f Hz, mono", hwFormat.sampleRate, outputRate)
     }
 
     func stop() {
-        engine.inputNode.removeTap(onBus: 0)
         engine.stop()
+        if tapInstalled {
+            engine.inputNode.removeTap(onBus: 0)
+            tapInstalled = false
+        }
     }
 }
 

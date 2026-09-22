@@ -77,6 +77,7 @@ Other targets:
 make run                  # build + open from ./build (no install)
 make uninstall            # remove from /Applications
 make clean                # delete build artifacts
+make test                 # audio mixing, concurrent buffering, and storage regressions
 ```
 
 Install to a custom location:
@@ -85,7 +86,13 @@ Install to a custom location:
 make install INSTALL_DIR=~/Applications
 ```
 
-Sign with your Developer ID:
+The build automatically uses the first available Apple Development (or Mac Developer)
+certificate, then a Developer ID Application certificate. Using the same certificate
+keeps the app's identity stable so macOS can retain permissions across rebuilds.
+If no certificate is available, the build falls back to an ad-hoc signature, which
+may require granting permissions again after the executable changes.
+
+Select a specific certificate (recommended if you have multiple signing identities):
 
 ```bash
 CODESIGN_IDENTITY="Developer ID Application: ..." make install
@@ -93,10 +100,15 @@ CODESIGN_IDENTITY="Developer ID Application: ..." make install
 
 ## Permissions
 
-On first launch, macOS will prompt for:
+Permissions are requested when you start recording, rather than when you launch the app:
 
-- **Screen Recording** — Required for Process Taps to capture system audio
+- **System Audio Recording** — Core Audio requests access when first recording with a Process Tap; screen capture permission is not required ([Apple documentation](https://developer.apple.com/documentation/coreaudio/capturing-system-audio-with-core-audio-taps))
 - **Microphone** — Required only if "Include microphone" is enabled
+
+Existing microphone authorization is reused. If microphone access is denied, the
+app records system audio only. You can change access in System Settings → Privacy
+& Security. Switching from an ad-hoc signature to a certificate may require
+granting permissions once for the new signing identity.
 
 ## Known limitations
 

@@ -25,11 +25,11 @@ final class SystemAudioCapture {
     private var fileRef: ExtAudioFileRef?
     private let ioQueue = DispatchQueue(label: "es.speechrecog.audio.io", qos: .userInitiated)
 
-    // MARK: - Mixing buffers (allocated only when mic is active)
-
-    private var mixBuffer: UnsafeMutablePointer<Float>?
-    private var mixCapacity: Int = 0
-    private var outBuffer: UnsafeMutablePointer<UInt8>?
+    private var writeError: OSStatus = noErr
+    private var mixer: AudioMixer?
+    private var framesSinceLevelUpdate = 0
+    private var levelUpdateInterval = 4800
+    private var peakLevel: Float = 0
 
     /// Called from the IO thread with the peak level (0.0-1.0).
     var onLevel: ((Float) -> Void)?
@@ -41,13 +41,26 @@ final class SystemAudioCapture {
 
     // MARK: - Lifecycle
 
+    deinit {
+        try? stop()
+    }
+
     func start() throws {
+        var started = false
+        defer {
+            if !started {
+                let createdOutput = fileRef != nil
+                try? stop()
+                if createdOutput { try? FileManager.default.removeItem(at: outputURL) }
+            }
+        }
+
         // 1. Create tap and aggregate device
         let (tapID, tapUID) = try createProcessTap()
         self.tapID = tapID
 
         let outputDeviceID = try CoreAudio.defaultOutputDeviceID()
-        let outputUID = try CoreAudio.defaultOutputDeviceUID()
+        let outputUID = try CoreAudio.deviceUID(outputDeviceID)
         let aggregateID = try createAggregateDevice(outputUID: outputUID, tapUID: tapUID)
         self.aggregateID = aggregateID
 
@@ -64,46 +77,72 @@ final class SystemAudioCapture {
             recordingFormat.mSampleRate = outputDeviceRate
         }
 
+        guard recordingFormat.mFormatID == kAudioFormatLinearPCM,
+              recordingFormat.mFormatFlags & kAudioFormatFlagIsFloat != 0,
+              recordingFormat.mFormatFlags & kAudioFormatFlagIsNonInterleaved == 0,
+              recordingFormat.mBitsPerChannel == 32,
+              recordingFormat.mChannelsPerFrame > 0,
+              recordingFormat.mBytesPerFrame == recordingFormat.mChannelsPerFrame * 4,
+              recordingFormat.mSampleRate.isFinite, recordingFormat.mSampleRate > 0 else {
+            throw CoreAudioError.unsupportedFormat
+        }
+        levelUpdateInterval = max(1, Int(recordingFormat.mSampleRate / 10))
+
         // 3. Start mic at the same rate as the aggregate device
         if let mic = micCapture {
             do {
                 try mic.start(targetSampleRate: recordingFormat.mSampleRate)
+                mixer = AudioMixer(channels: Int(recordingFormat.mChannelsPerFrame))
             } catch {
                 NSLog("[SpeechRecog] Mic unavailable, continuing without: %@", "\(error)")
             }
-            allocateMixBuffers(format: recordingFormat)
         }
 
         // 4. Open output file and start IO
         try openOutputFile(clientFormat: recordingFormat)
         try installIOProc(on: aggregateID)
+        // Core Audio requests system audio recording access on first use.
+        // Screen capture access is a separate permission and is not needed here.
         try CoreAudio.check(AudioDeviceStart(aggregateID, ioProcID), "AudioDeviceStart")
 
+        started = true
         NSLog("[SpeechRecog] Recording started")
     }
 
     func stop() throws {
+        var firstError: Error?
+        func check(_ status: OSStatus, _ operation: String) {
+            if status != noErr, firstError == nil {
+                firstError = CoreAudioError.osStatus(operation, status)
+            }
+        }
         if aggregateID != kAudioObjectUnknown, let procID = ioProcID {
-            AudioDeviceStop(aggregateID, procID)
-            AudioDeviceDestroyIOProcID(aggregateID, procID)
+            check(AudioDeviceStop(aggregateID, procID), "AudioDeviceStop")
+            check(AudioDeviceDestroyIOProcID(aggregateID, procID), "DestroyIOProc")
         }
         ioProcID = nil
 
         if aggregateID != kAudioObjectUnknown {
-            AudioHardwareDestroyAggregateDevice(aggregateID)
+            check(AudioHardwareDestroyAggregateDevice(aggregateID), "DestroyAggregateDevice")
             aggregateID = AudioObjectID(kAudioObjectUnknown)
         }
         if tapID != kAudioObjectUnknown {
-            AudioHardwareDestroyProcessTap(tapID)
+            check(AudioHardwareDestroyProcessTap(tapID), "DestroyProcessTap")
             tapID = AudioObjectID(kAudioObjectUnknown)
         }
 
         ioQueue.sync {
-            if let fileRef { ExtAudioFileDispose(fileRef) }
+            check(writeError, "WriteAudio")
+            writeError = noErr
+            if let fileRef { check(ExtAudioFileDispose(fileRef), "CloseAudioFile") }
             self.fileRef = nil
         }
 
-        deallocateMixBuffers()
+        micCapture?.stop()
+        mixer = nil
+        framesSinceLevelUpdate = 0
+        peakLevel = 0
+        if let firstError { throw firstError }
     }
 
     // MARK: - Process Tap
@@ -172,11 +211,12 @@ final class SystemAudioCapture {
         try CoreAudio.check(
             ExtAudioFileCreateWithURL(
                 outputURL as CFURL, kAudioFileM4AType, &fileFormat,
-                nil, AudioFileFlags.eraseFile.rawValue, &ref
+                nil, 0, &ref
             ),
             "ExtAudioFileCreate"
         )
         guard let ref else { throw CoreAudioError.unsupportedFormat }
+        self.fileRef = ref
 
         try CoreAudio.check(
             ExtAudioFileSetProperty(
@@ -187,61 +227,35 @@ final class SystemAudioCapture {
         )
 
         var nullList = AudioBufferList()
-        _ = ExtAudioFileWriteAsync(ref, 0, &nullList)
-        self.fileRef = ref
-    }
-
-    // MARK: - Mix Buffers
-
-    private func allocateMixBuffers(format: AudioStreamBasicDescription) {
-        let maxFrames = 4096
-        mixCapacity = maxFrames
-        mixBuffer = .allocate(capacity: maxFrames)
-        let outSize = maxFrames * Int(format.mBytesPerFrame) + MemoryLayout<AudioBufferList>.size
-        outBuffer = .allocate(capacity: outSize)
-    }
-
-    private func deallocateMixBuffers() {
-        mixBuffer?.deallocate()
-        mixBuffer = nil
-        mixCapacity = 0
-        outBuffer?.deallocate()
-        outBuffer = nil
+        try CoreAudio.check(ExtAudioFileWriteAsync(ref, 0, &nullList), "PrepareAudioWriter")
     }
 
     // MARK: - IOProc
 
     private func installIOProc(on aggregate: AudioObjectID) throws {
         let block: AudioDeviceIOBlock = { [weak self] _, inputData, _, _, _ in
-            guard let self, let fileRef = self.fileRef else { return }
-
-            let srcBuf = inputData.pointee.mBuffers
-            guard inputData.pointee.mNumberBuffers > 0,
-                  let srcData = srcBuf.mData,
-                  srcBuf.mDataByteSize > 0 else { return }
-
-            let bytesPerSample = UInt32(MemoryLayout<Float32>.size)
-            let channels = max(UInt32(1), srcBuf.mNumberChannels)
-            let frames = srcBuf.mDataByteSize / (bytesPerSample * channels)
+            guard let self, self.fileRef != nil, self.writeError == noErr else { return }
+            guard inputData.pointee.mNumberBuffers == 1 else {
+                self.writeError = kAudioFileUnsupportedDataFormatError
+                return
+            }
+            let buffer = inputData.pointee.mBuffers
+            guard let samples = buffer.mData?.assumingMemoryBound(to: Float.self),
+                  buffer.mNumberChannels > 0 else { return }
+            let channels = Int(buffer.mNumberChannels)
+            let frames = Int(buffer.mDataByteSize) / (MemoryLayout<Float>.size * channels)
             guard frames > 0 else { return }
 
-            let writePtr: UnsafePointer<AudioBufferList>
-
-            if let mic = self.micCapture, let mixBuf = self.mixBuffer, let outBuf = self.outBuffer {
-                writePtr = self.mixMicInto(
-                    inputData: inputData, srcData: srcData, dataSize: Int(srcBuf.mDataByteSize),
-                    frames: Int(frames), channels: Int(channels),
-                    mic: mic, mixBuf: mixBuf, outBuf: outBuf
-                )
+            if let mixer = self.mixer, let mic = self.micCapture {
+                guard mixer.channels == channels else {
+                    self.writeError = kAudioFileUnsupportedDataFormatError
+                    return
+                }
+                mixer.process(input: samples, frameCount: frames, microphone: mic.ringBuffer, gain: self.micGain) {
+                    self.writeAudio($0, frames: $1, channels: channels)
+                }
             } else {
-                writePtr = inputData
-            }
-
-            self.reportLevel(from: writePtr, bytesPerSample: bytesPerSample)
-
-            let status = ExtAudioFileWriteAsync(fileRef, frames, writePtr)
-            if status != noErr {
-                NSLog("[SpeechRecog] ExtAudioFileWriteAsync error: %d", status)
+                self.writeAudio(samples, frames: frames, channels: channels)
             }
         }
 
@@ -250,57 +264,30 @@ final class SystemAudioCapture {
             AudioDeviceCreateIOProcIDWithBlock(&procID, aggregate, ioQueue, block),
             "CreateIOProcWithBlock"
         )
-        self.ioProcID = procID
+        ioProcID = procID
     }
 
-    // MARK: - Mic Mixing (called from IOProc, must be real-time safe)
+    private func writeAudio(_ samples: UnsafePointer<Float>, frames: Int, channels: Int) {
+        guard let fileRef, writeError == noErr else { return }
+        var buffers = AudioBufferList(
+            mNumberBuffers: 1,
+            mBuffers: AudioBuffer(
+                mNumberChannels: UInt32(channels),
+                mDataByteSize: UInt32(frames * channels * MemoryLayout<Float>.size),
+                mData: UnsafeMutableRawPointer(mutating: samples)
+            )
+        )
+        // Record the first failure and report it when stopping, off the audio thread.
+        writeError = ExtAudioFileWriteAsync(fileRef, UInt32(frames), &buffers)
 
-    private func mixMicInto(
-        inputData: UnsafePointer<AudioBufferList>,
-        srcData: UnsafeMutableRawPointer,
-        dataSize: Int,
-        frames: Int,
-        channels: Int,
-        mic: MicrophoneCapture,
-        mixBuf: UnsafeMutablePointer<Float>,
-        outBuf: UnsafeMutablePointer<UInt8>
-    ) -> UnsafePointer<AudioBufferList> {
-        let ablSize = MemoryLayout<AudioBufferList>.size
-        memcpy(outBuf, inputData, ablSize)
-        let outABL = UnsafeMutableRawPointer(outBuf).assumingMemoryBound(to: AudioBufferList.self)
-        let audioDataDst = outBuf.advanced(by: ablSize)
-        memcpy(audioDataDst, srcData, dataSize)
-        outABL.pointee.mBuffers.mData = UnsafeMutableRawPointer(audioDataDst)
-
-        let toRead = min(frames, mixCapacity)
-        let micRead = mic.ringBuffer.read(into: mixBuf, count: toRead)
-
-        if micRead > 0 {
-            let dst = UnsafeMutableRawPointer(audioDataDst).assumingMemoryBound(to: Float.self)
-            let gain = self.micGain
-            for f in 0..<min(frames, micRead) {
-                let sample = mixBuf[f] * gain
-                for c in 0..<channels {
-                    dst[f * channels + c] += sample
-                }
-            }
+        for index in 0..<(frames * channels) {
+            peakLevel = max(peakLevel, abs(samples[index]))
         }
-
-        return UnsafePointer(outABL)
-    }
-
-    // MARK: - Level Metering
-
-    private func reportLevel(from bufferList: UnsafePointer<AudioBufferList>, bytesPerSample: UInt32) {
-        guard let onLevel else { return }
-        let buf = bufferList.pointee.mBuffers
-        guard let data = buf.mData?.assumingMemoryBound(to: Float.self) else { return }
-        var peak: Float = 0
-        let count = Int(buf.mDataByteSize / bytesPerSample)
-        for i in 0..<count {
-            let a = Swift.abs(data[i])
-            if a > peak { peak = a }
+        framesSinceLevelUpdate += frames
+        if framesSinceLevelUpdate >= levelUpdateInterval {
+            onLevel?(min(peakLevel, 1))
+            framesSinceLevelUpdate = 0
+            peakLevel = 0
         }
-        onLevel(min(peak, 1.0))
     }
 }

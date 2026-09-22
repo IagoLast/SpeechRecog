@@ -51,8 +51,11 @@ final class AppleSpeechEngine: TranscriptionEngine {
     }
 
     private static func requestAuthorization() async throws {
-        let status: SFSpeechRecognizerAuthorizationStatus = await withCheckedContinuation { cont in
-            SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
+        var status = SFSpeechRecognizer.authorizationStatus()
+        if status == .notDetermined {
+            status = await withCheckedContinuation { cont in
+                SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
+            }
         }
         guard status == .authorized else {
             throw NSError(
@@ -105,6 +108,7 @@ private final class RecognitionDelegate: NSObject, SFSpeechRecognitionTaskDelega
         let cont = continuation
         continuation = nil
         let result = lastResult
+        self.task = nil
         lock.unlock()
         guard let cont else { return }
 

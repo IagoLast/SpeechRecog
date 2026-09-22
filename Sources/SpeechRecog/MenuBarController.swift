@@ -40,7 +40,7 @@ final class MenuBarController {
     private func render(state: RecordingCoordinator.State) {
         guard let button = statusItem?.button else { return }
         switch state {
-        case .idle:
+        case .idle, .starting:
             button.image = Self.idleImage
             button.title = ""
         case .recording:
@@ -63,6 +63,7 @@ final class MenuBarController {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
+        menu.autoenablesItems = false
 
         let toggle = NSMenuItem(
             title: coordinator.state == .recording ? "Detener grabación" : "Iniciar grabación",
@@ -70,6 +71,10 @@ final class MenuBarController {
             keyEquivalent: "r"
         )
         toggle.target = self
+        toggle.isEnabled = coordinator.state == .idle || coordinator.state == .recording
+        if coordinator.state == .starting {
+            toggle.title = "Preparando grabación…"
+        }
         menu.addItem(toggle)
 
         if case .transcribing(let progress) = coordinator.state {
@@ -129,7 +134,12 @@ final class MenuBarController {
     }
 
     @objc private func openRecordingsFolder() {
-        NSWorkspace.shared.open(coordinator.recordingsFolder)
+        do {
+            try FileManager.default.createDirectory(at: coordinator.recordingsFolder, withIntermediateDirectories: true)
+            NSWorkspace.shared.open(coordinator.recordingsFolder)
+        } catch {
+            NSAlert(error: error).runModal()
+        }
     }
 
     @objc private func openPreferences() {
