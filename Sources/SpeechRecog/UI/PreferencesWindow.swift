@@ -3,13 +3,14 @@ import SwiftUI
 
 enum PreferencesWindow {
     @MainActor
-    static func make(settings: Settings) -> NSWindow {
-        let view = PreferencesView(settings: settings)
+    static func make(coordinator: RecordingCoordinator) -> NSWindow {
+        let view = PreferencesView(coordinator: coordinator)
         let host = NSHostingController(rootView: view)
         let window = NSWindow(contentViewController: host)
         window.title = "SpeechRecog · Preferencias"
-        window.styleMask = [.titled, .closable, .miniaturizable]
-        window.setContentSize(NSSize(width: 460, height: 400))
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.setContentSize(NSSize(width: 900, height: 650))
+        window.contentMinSize = NSSize(width: 760, height: 560)
         window.isReleasedWhenClosed = false
         window.center()
         return window
@@ -17,6 +18,22 @@ enum PreferencesWindow {
 }
 
 private struct PreferencesView: View {
+    @ObservedObject var coordinator: RecordingCoordinator
+
+    var body: some View {
+        TabView {
+            GeneralPreferencesView(settings: coordinator.settings)
+                .tabItem { Label("General", systemImage: "gearshape") }
+
+            RecordingsView(coordinator: coordinator, settings: coordinator.settings)
+                .tabItem { Label("Grabaciones", systemImage: "waveform") }
+        }
+        .padding(20)
+        .frame(minWidth: 760, minHeight: 560)
+    }
+}
+
+private struct GeneralPreferencesView: View {
     @ObservedObject var settings: Settings
 
     var body: some View {
@@ -26,26 +43,10 @@ private struct PreferencesView: View {
             }
 
             Section("Transcripción") {
-                Picker("Motor", selection: $settings.transcriptionBackend) {
-                    ForEach(TranscriptionBackend.allCases) { backend in
-                        Text(backend.displayName).tag(backend)
-                    }
-                }
-
-                if settings.transcriptionBackend == .whisperKit {
-                    Picker("Modelo Whisper", selection: $settings.whisperModel) {
-                        ForEach(WhisperModel.allCases) { model in
-                            Text(model.displayName).tag(model.rawValue)
-                        }
-                    }
-                }
-
-                TextField(
-                    "Idioma (BCP-47, vacío = auto)",
-                    text: Binding(
-                        get: { settings.language ?? "" },
-                        set: { settings.language = $0.isEmpty ? nil : $0 }
-                    )
+                TranscriptionOptionsView(
+                    backend: $settings.transcriptionBackend,
+                    whisperModel: $settings.whisperModel,
+                    language: $settings.language
                 )
             }
 
@@ -81,7 +82,45 @@ private struct PreferencesView: View {
             }
         }
         .formStyle(.grouped)
-        .padding(20)
-        .frame(width: 460)
+    }
+}
+
+struct TranscriptionOptionsView: View {
+    @Binding var backend: TranscriptionBackend
+    @Binding var whisperModel: String
+    @Binding var language: String?
+
+    var body: some View {
+        Picker("Modelo", selection: $backend) {
+            ForEach(TranscriptionBackend.allCases) { backend in
+                Text(backend.displayName).tag(backend)
+            }
+        }
+
+        if backend == .whisperKit {
+            Picker("Modelo Whisper", selection: $whisperModel) {
+                ForEach(WhisperModel.allCases) { model in
+                    Text(model.displayName).tag(model.rawValue)
+                }
+            }
+        }
+
+        if let detail = backend.detail {
+            Text(detail)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        TextField(
+            "Idioma (BCP-47, vacío = auto)",
+            text: Binding(
+                get: { language ?? "" },
+                set: {
+                    let value = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    language = value.isEmpty ? nil : value
+                }
+            )
+        )
     }
 }

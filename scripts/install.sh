@@ -3,7 +3,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/IagoLast/SpeechRecog/master/scripts/install.sh | bash
 set -euo pipefail
 
-MIN_MACOS="14.2"
+MIN_MACOS="15.0"
 REPO="https://github.com/IagoLast/SpeechRecog.git"
 TMP_DIR="$(mktemp -d)"
 
@@ -28,6 +28,11 @@ if [[ "$(printf '%s\n' "$MIN_MACOS" "$MACOS_VERSION" | sort -V | head -n1)" != "
 fi
 echo "  macOS $MACOS_VERSION ✓"
 
+if [[ "$(uname -m)" != "arm64" ]]; then
+    echo "Error: SpeechRecog requires an Apple Silicon Mac." >&2
+    exit 1
+fi
+
 # --- Check Xcode / CLI tools ---
 if ! xcode-select -p &>/dev/null; then
     echo "Error: Xcode Command Line Tools not found. Install with:" >&2
@@ -43,6 +48,12 @@ if ! command -v swift &>/dev/null; then
 fi
 SWIFT_VERSION="$(swift --version 2>&1 | head -1)"
 echo "  $SWIFT_VERSION ✓"
+
+if ! xcrun -sdk macosx metal --version >/dev/null 2>&1; then
+    echo "Error: Install Xcode and its Metal Toolchain before building:" >&2
+    echo "  xcodebuild -downloadComponent MetalToolchain" >&2
+    exit 1
+fi
 
 # --- Clone & build ---
 echo ""

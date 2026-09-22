@@ -1,6 +1,6 @@
 import Foundation
 
-struct Recording {
+struct Recording: Identifiable {
     let id: UUID
     let createdAt: Date
     let audioURL: URL

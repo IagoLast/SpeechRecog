@@ -144,7 +144,7 @@ final class MenuBarController {
 
     @objc private func openPreferences() {
         if preferencesWindow == nil {
-            preferencesWindow = PreferencesWindow.make(settings: coordinator.settings)
+            preferencesWindow = PreferencesWindow.make(coordinator: coordinator)
         }
         preferencesWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)

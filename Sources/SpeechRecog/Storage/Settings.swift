@@ -3,13 +3,28 @@ import Combine
 
 enum TranscriptionBackend: String, CaseIterable, Identifiable {
     case whisperKit
+    case qwen
+    case moss
     case appleSpeech
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
         case .whisperKit: return "WhisperKit (on-device)"
+        case .qwen: return "Qwen3-ASR 1.7B (local)"
+        case .moss: return "MOSS · transcripción y hablantes (local)"
         case .appleSpeech: return "Apple Speech (SFSpeechRecognizer)"
+        }
+    }
+
+    var detail: String? {
+        switch self {
+        case .qwen:
+            return "Transcripción con tiempos por palabra. Descarga los modelos la primera vez y después funciona sin conexión."
+        case .moss:
+            return "Subtítulos con etiquetas de hablante. Descarga el modelo la primera vez y después funciona sin conexión."
+        default:
+            return nil
         }
     }
 }

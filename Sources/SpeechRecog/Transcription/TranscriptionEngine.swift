@@ -1,12 +1,13 @@
 import Foundation
 
-struct Subtitle {
+struct Subtitle: Sendable, Equatable {
     let start: TimeInterval
     let end: TimeInterval
     let text: String
+    var speaker: String? = nil
 }
 
-struct Transcript {
+struct Transcript: Sendable {
     let segments: [Subtitle]
     var fullText: String {
         segments.map(\.text).joined(separator: " ")
@@ -20,13 +21,27 @@ protocol TranscriptionEngine {
     ) async throws -> Transcript
 }
 
+struct TranscriptionConfiguration {
+    var backend: TranscriptionBackend
+    var whisperModel: String
+    var language: String?
+
+    init(settings: Settings) {
+        backend = settings.transcriptionBackend
+        whisperModel = settings.whisperModel
+        language = settings.language
+    }
+}
+
 enum TranscriptionEngineFactory {
-    static func make(settings: Settings) -> TranscriptionEngine {
-        switch settings.transcriptionBackend {
+    static func make(configuration: TranscriptionConfiguration) -> TranscriptionEngine {
+        switch configuration.backend {
         case .whisperKit:
-            return WhisperKitEngine(modelName: settings.whisperModel, language: settings.language)
+            return WhisperKitEngine(modelName: configuration.whisperModel, language: configuration.language)
         case .appleSpeech:
-            return AppleSpeechEngine(language: settings.language)
+            return AppleSpeechEngine(language: configuration.language)
+        case .qwen, .moss:
+            return LocalModelsEngine(backend: configuration.backend, language: configuration.language)
         }
     }
 }

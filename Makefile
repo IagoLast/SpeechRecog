@@ -27,7 +27,9 @@ build:
 	@./scripts/build-app.sh
 
 test:
-	@swift test
+	@swift build --build-tests
+	@bash scripts/build-metal.sh debug
+	@swift test --skip-build
 
 install: build
 	@pkill -f "$(APP_NAME).app/Contents/MacOS/$(APP_NAME)" 2>/dev/null || true

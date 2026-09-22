@@ -13,6 +13,7 @@ final class RecordingCoordinator: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var audioLevel: Float = 0
+    @Published private(set) var transcribingRecording: Recording?
 
     let settings = Settings()
     private(set) var store: RecordingsStore
@@ -88,24 +89,26 @@ final class RecordingCoordinator: ObservableObject {
             presentError(error)
             return
         }
-        await transcribe(recording)
+        await transcribe(recording, configuration: TranscriptionConfiguration(settings: settings))
     }
 
-    func retranscribe(recording: Recording) async {
+    func retranscribe(recording: Recording, configuration: TranscriptionConfiguration? = nil) async {
         guard case .idle = state else { return }
-        await transcribe(recording)
+        await transcribe(recording, configuration: configuration ?? TranscriptionConfiguration(settings: settings))
     }
 
-    private func transcribe(_ recording: Recording) async {
+    private func transcribe(_ recording: Recording, configuration: TranscriptionConfiguration) async {
         let id = UUID()
         transcriptionID = id
+        transcribingRecording = recording
         state = .transcribing(progress: 0)
         defer {
             transcriptionID = nil
+            transcribingRecording = nil
             state = .idle
         }
         do {
-            let engine = TranscriptionEngineFactory.make(settings: settings)
+            let engine = TranscriptionEngineFactory.make(configuration: configuration)
             let result = try await engine.transcribe(audioURL: recording.audioURL) { [weak self] progress in
                 Task { @MainActor in
                     guard let self, self.transcriptionID == id, progress.isFinite else { return }

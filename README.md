@@ -6,7 +6,7 @@
 
 <p align="center">
   Record system audio + microphone and auto-transcribe to subtitles.<br/>
-  Lives in your menu bar. macOS 14.2+ only. No drivers needed.
+  Lives in your menu bar. Apple Silicon, macOS 15+. No drivers needed.
 </p>
 
 <p align="center">
@@ -23,18 +23,20 @@
 curl -fsSL https://raw.githubusercontent.com/IagoLast/SpeechRecog/master/scripts/install.sh | bash
 ```
 
-Requires macOS 14.2+ and Xcode Command Line Tools (`xcode-select --install`).
+Requires an Apple Silicon Mac, macOS 15+, and Xcode with Swift 6.3+ and the Metal Toolchain (`xcodebuild -downloadComponent MetalToolchain`).
 
 ## Features
 
 - **System audio capture** — Records everything playing on your Mac (meetings, music, videos) using Core Audio Process Taps. No virtual audio drivers needed.
 - **Microphone mixing** — Optionally mix your microphone input into the recording so both sides of a conversation are captured in one file.
-- **Auto-transcription** — Generates `.srt` subtitles automatically when you stop recording. Choose between WhisperKit (on-device, private) or Apple Speech.
+- **Auto-transcription** — Generates `.srt` subtitles automatically when you stop recording. Choose WhisperKit, Qwen3-ASR 1.7B, MOSS, or Apple Speech.
+- **Qwen3-ASR 1.7B** — Local multilingual transcription with word alignment for subtitles. Speech detection and short chunks handle long recordings and silent gaps.
+- **MOSS Transcribe Diarize** — Local transcription with timestamps and anonymous speaker labels. Long recordings are processed in 30-minute parts; speaker identities are scoped to each part and labeled accordingly.
 - **Multiple Whisper models** — From Tiny (~75 MB, fast) to Large v3 (~3 GB, best quality). Models download automatically on first use.
 - **Language detection** — Auto-detects the spoken language, or set a specific BCP-47 code (e.g. `es`, `en-US`, `pt-BR`).
 - **Custom recordings folder** — Save recordings anywhere on your Mac.
 - **Menu bar app** — Doesn't clutter your Dock. Keyboard shortcuts for everything.
-- **Re-transcribe** — Re-run transcription on any past recording with a different model or engine.
+- **Recordings library** — Open **Preferencias → Grabaciones** in the larger, resizable settings window to browse saved recordings and their subtitle status. Click **Transcribir…** or **Retranscribir…**, choose a model and language for that job, and follow its progress. This choice does not change your default model. The original `.m4a` audio stays unchanged; the `.srt` is replaced only after successful transcription. A failed job keeps the previous subtitles. The menu bar's **Re-transcribir** shortcut still uses your defaults.
 
 ## How it works
 
@@ -58,10 +60,16 @@ Recordings are saved to `~/Documents/SpeechRecog/` by default (configurable in P
 | Setting | Description |
 |---|---|
 | **Include microphone** | Mix mic input into the system audio recording |
-| **Transcription engine** | WhisperKit (on-device) or Apple Speech |
+| **Transcription engine** | WhisperKit, Qwen3-ASR 1.7B, MOSS (with speaker labels), or Apple Speech |
 | **Whisper model** | Tiny / Base / Small / Medium / Large v3 |
 | **Language** | BCP-47 code or empty for auto-detection |
 | **Recordings folder** | Where `.m4a` and `.srt` files are saved |
+
+Qwen and MOSS run entirely on the Mac using [Speech Swift](https://github.com/soniqo/speech-swift).
+Their models download on first use and are cached in `~/Library/Caches/qwen3-speech/` for offline reuse.
+Qwen uses the 1.7B 8-bit model plus the 0.6B 8-bit forced aligner; MOSS uses the 0.9B INT8 MLX model.
+The initial download takes several GB. The first transcription also includes model loading and GPU compilation.
+The language setting accepts codes such as `es` or `es-ES`; leave it empty for automatic detection.
 
 ## Build from source
 
@@ -79,6 +87,15 @@ make uninstall            # remove from /Applications
 make clean                # delete build artifacts
 make test                 # audio mixing, concurrent buffering, and storage regressions
 ```
+
+An optional model integration test uses a local audio fixture and real downloaded models:
+
+```bash
+SPEECHRECOG_TEST_AUDIO=/absolute/path/to/spanish-sample.m4a SPEECHRECOG_TEST_MODEL=qwen make test
+SPEECHRECOG_TEST_AUDIO=/absolute/path/to/spanish-sample.m4a SPEECHRECOG_TEST_MODEL=moss make test
+```
+
+Use a Spanish sample saying “proyecto” and “viernes”; the tests check recognition and valid subtitle timestamps.
 
 Install to a custom location:
 

@@ -6,6 +6,9 @@ enum SRTWriter {
         for (index, seg) in segments.enumerated() {
             output += "\(index + 1)\n"
             output += "\(timestamp(seg.start)) --> \(timestamp(seg.end))\n"
+            if let speaker = seg.speaker {
+                output += "[\(speaker)] "
+            }
             output += seg.text + "\n\n"
         }
         try output.write(to: url, atomically: true, encoding: .utf8)

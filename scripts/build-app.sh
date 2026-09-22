@@ -2,8 +2,8 @@
 # Builds SpeechRecog as a proper .app bundle from the SwiftPM target.
 #
 # Requirements:
-#   - macOS 14.2+
-#   - Xcode 15.2+ (or matching Command Line Tools providing Swift 5.9+)
+#   - Apple Silicon, macOS 15+
+#   - Xcode with Swift 6.3+ and the Metal Toolchain
 #
 # Usage:
 #   ./scripts/build-app.sh
@@ -24,10 +24,16 @@ RESOURCES="$CONTENTS/Resources"
 PLIST="$ROOT/Sources/SpeechRecog/Resources/Info.plist"
 ENTITLEMENTS="$ROOT/Sources/SpeechRecog/Resources/SpeechRecog.entitlements"
 
-SWIFT_FLAGS=(--configuration release --arch arm64 --arch x86_64)
+if [[ "$(uname -m)" != "arm64" ]]; then
+    echo "Error: SpeechRecog's local models require Apple Silicon." >&2
+    exit 1
+fi
+
+SWIFT_FLAGS=(--configuration release)
 
 echo "→ swift build ${SWIFT_FLAGS[*]}"
 swift build "${SWIFT_FLAGS[@]}"
+bash "$ROOT/scripts/build-metal.sh" release
 
 BIN_PATH="$(swift build "${SWIFT_FLAGS[@]}" --show-bin-path)"
 
@@ -36,6 +42,7 @@ rm -rf "$APP_BUNDLE"
 mkdir -p "$MACOS" "$RESOURCES"
 
 cp "$BIN_PATH/$APP_NAME" "$MACOS/$APP_NAME"
+cp "$BIN_PATH/mlx.metallib" "$MACOS/mlx.metallib"
 cp "$PLIST" "$CONTENTS/Info.plist"
 cp "$ROOT/Sources/SpeechRecog/Resources/AppIcon.icns" "$RESOURCES/AppIcon.icns"
 
