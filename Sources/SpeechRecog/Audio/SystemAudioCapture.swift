@@ -235,7 +235,12 @@ final class SystemAudioCapture {
     private func installIOProc(on aggregate: AudioObjectID) throws {
         let block: AudioDeviceIOBlock = { [weak self] _, inputData, _, _, _ in
             guard let self, self.fileRef != nil, self.writeError == noErr else { return }
-            guard inputData.pointee.mNumberBuffers == 1 else {
+            // The aggregate device can deliver more than one buffer: the private process
+            // tap's stream (always first) plus a silent stream from the regular sub-device
+            // we added only for clock sync (see createAggregateDevice). Only the first
+            // buffer — the tap — carries real audio, so extra buffers are ignored rather
+            // than treated as an unsupported format.
+            guard inputData.pointee.mNumberBuffers >= 1 else {
                 self.writeError = kAudioFileUnsupportedDataFormatError
                 return
             }
