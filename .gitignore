@@ -7,6 +7,9 @@ xcuserdata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
+!*.xcodeproj/xcshareddata/**
+!*.xcodeproj/project.xcworkspace/
+!*.xcodeproj/project.xcworkspace/**
 
 # App bundle produced by scripts/build-app.sh
 build/
