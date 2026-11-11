@@ -15,12 +15,15 @@
 
 SpeechRecog captures the audio playing on your Mac, optionally adds your microphone, and turns the recording into a transcript with timestamps. It works independently of your calling app: **it never joins the meeting, adds a bot, or appears in the participant list.** Your call and audio playback continue as usual.
 
+There is also an iPhone companion for voice notes, started from the Action Button. The Mac app is unchanged. See [iPhone](#iphone).
+
 **Record first. Transcribe afterwards.** While you talk, SpeechRecog saves the audio locally. When you stop recording, it automatically starts asynchronous transcription and saves an `.srt` file next to the audio.
 
 <p align="center">
   <a href="#installation">Install</a> ·
   <a href="#record-your-first-call">Get started</a> ·
   <a href="#transcription-engines">Choose an engine</a> ·
+  <a href="#iphone">iPhone</a> ·
   <a href="#under-the-hood">Technical details</a>
 </p>
 
@@ -211,6 +214,56 @@ They check recognition, valid subtitle timestamps, preservation of the source au
 - **One task at a time:** transcription starts after recording stops, and a new recording must wait until it finishes.
 - **Output device changes:** if you switch speakers or headphones during a recording, stop and start a new recording to use the new output device.
 - **Speaker labels:** MOSS labels are anonymous and local to each 30-minute part.
+
+## iPhone
+
+`ios/SpeechRecogNotes.xcodeproj` is a separate iPhone app. It records a voice note, transcribes it with Apple's speech recognizer, and writes a short summary plus action items. The Mac target is not linked: system-audio capture, the menu bar, and the WhisperKit / Qwen / MOSS engines stay on the Mac. Transcription follows the Mac app's `AppleSpeechEngine` (on-device `SFSpeechRecognizer` when the phone supports it). Notes are a JSON index plus `.m4a` files in the app's storage, not `.srt` subtitles.
+
+Summaries use Apple's on-device Foundation Models framework. The deployment target is iOS 26, which is the first release that includes it, so a voice note does not need an API key. If Apple Intelligence is off, the phone is not eligible, or the model fails, `ExtractiveSummarizer` keeps the first sentences and any English or Spanish sentence that looks like a task. `NoteSummarizer` is the seam for a different backend later.
+
+### Requirements
+
+- A Mac with **Xcode 26** or later (the iOS 26 SDK).
+- An iPhone with an **Action Button** (iPhone 15 Pro or later) running **iOS 26**.
+- Apple Intelligence is optional. It is used for the summary when it is available.
+
+The Xcode project targets the iPhone simulator as well, but the Action Button, a real microphone session, and Apple Intelligence are device features.
+
+### Build and install on a device
+
+1. Open `ios/SpeechRecogNotes.xcodeproj` and select the **SpeechRecogNotes** scheme.
+2. Select the project, open **Signing & Capabilities**, and set your **Team**. The app, the widget extension, and the shared framework inherit it. No extra capabilities are required: microphone access, speech recognition, background audio, and Live Activities are declared in the app's Info.plist.
+3. Connect the iPhone, choose it as the run destination, and press **Run**.
+4. If the phone says the developer is not trusted: **Settings → General → VPN & Device Management**, trust the certificate, and run again.
+5. On first launch, allow **Microphone** and **Speech Recognition**.
+
+### Assign the shortcut to the Action Button
+
+The shortcut is `ToggleVoiceNoteIntent` ("Voice Note"). It adopts `AudioRecordingIntent` and asks to run in the background, moving to the foreground only when the microphone session or the Live Activity cannot start there.
+
+1. Open SpeechRecog once so the microphone permission exists. A cold press cannot show the permission prompt from the background.
+2. On the iPhone, open **Settings → Action Button**.
+3. Swipe to **Shortcut**.
+4. Tap **Choose a Shortcut…** and select **SpeechRecog → Voice Note**.
+5. Leave **Open When Run** off if you want the press to record without opening the app.
+6. Press the Action Button to start. A Live Activity shows on the Lock Screen and in the Dynamic Island. iOS stops a background recording that has no Live Activity, so leave Live Activities enabled for SpeechRecog (**Settings → SpeechRecog → Live Activities**).
+7. Press the Action Button again, or tap **Stop** on the Live Activity, to stop. The app transcribes the note and writes the summary.
+
+If iOS refuses to activate the microphone in the background (typical the first time, and sometimes on a cold launch), the shortcut opens SpeechRecog and starts recording on screen. The in-app microphone button does the same thing.
+
+Recordings longer than about a minute are split before transcription. `SFSpeechURLRecognitionRequest` is unreliable on long files. When on-device recognition is not available, Apple's recognizer may send audio to Apple; that is the same behavior as the Mac app's Apple Speech engine.
+
+The notes index and the extractive summarizer can be checked without Xcode:
+
+```bash
+swiftc -parse-as-library -o /tmp/speechrecog-corecheck \
+  ios/SpeechRecogNotes/Model/VoiceNote.swift \
+  ios/SpeechRecogNotes/Storage/NotesStore.swift \
+  ios/SpeechRecogNotes/Summary/NoteSummarizer.swift \
+  ios/SpeechRecogNotes/Summary/ExtractiveSummarizer.swift \
+  ios/Scripts/check-core.swift
+/tmp/speechrecog-corecheck
+```
 
 ## License
 
